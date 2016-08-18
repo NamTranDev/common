@@ -28,10 +28,10 @@ import core.connection.ssl.TrustedSslSocketFactory;
 import core.connection.volley.WebServiceError;
 import core.connection.volley.WebServiceResponse;
 import core.util.Constant;
-import core.util.Constant.RequestTarget;
 import core.util.Constant.RequestType;
 import core.util.Constant.StatusCode;
 import core.util.DLog;
+import core.util.RequestTarget;
 
 /**
  * @author Tyrael

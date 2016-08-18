@@ -15,6 +15,7 @@ import core.connection.FileRequester;
 import core.connection.volley.FileError;
 import core.connection.volley.FileResponse;
 import core.util.Constant;
+import core.util.RequestTarget;
 import core.util.Utils;
 
 
@@ -44,7 +45,7 @@ public class FileRequest extends Request<FileResponse> {
      * The target function of the service for this request, determined by
      * Constant.RequestTarget enum
      */
-    private final Constant.RequestTarget target;
+    private final RequestTarget target;
 
     /**
      * The request type for this request, either HTTP request or HTTPS request,
@@ -69,7 +70,7 @@ public class FileRequest extends Request<FileResponse> {
     private final Response.Listener<FileResponse> success;
 
     public FileRequest(String tag, Constant.RequestType type,
-                       Constant.RequestMethod method, String address, Constant.RequestTarget target,
+                       Constant.RequestMethod method, String address, RequestTarget target,
                        String api, Param content, FileRequester requester, String path, String name, String extension) {
         super(method.getValue(), type.toString() + address + api, requester);
         this.url = type.toString() + address + api;
@@ -90,8 +91,8 @@ public class FileRequest extends Request<FileResponse> {
     public Request<?> setRetryPolicy(RetryPolicy retryPolicy) {
         if (target != null) {
             return super.setRetryPolicy(new DefaultRetryPolicy(
-                    Constant.RequestTarget.timeout(target),
-                    Constant.RequestTarget.retry(target),
+                    RequestTarget.timeout(target),
+                    RequestTarget.retry(target),
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         }
         return super.setRetryPolicy(retryPolicy);
@@ -128,7 +129,7 @@ public class FileRequest extends Request<FileResponse> {
     /**
      * @return the target
      */
-    public Constant.RequestTarget getRequestTarget() {
+    public RequestTarget getRequestTarget() {
         return target;
     }
 

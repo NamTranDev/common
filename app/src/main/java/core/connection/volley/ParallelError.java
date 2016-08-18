@@ -4,19 +4,19 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.VolleyError;
 
 import core.base.BaseParser;
-import core.util.Constant;
+import core.util.RequestTarget;
 
 public class ParallelError extends VolleyError {
     /**
      *
      */
     private static final long serialVersionUID = 1L;
-    private final Constant.RequestTarget target;
+    private final RequestTarget target;
     private final BaseParser parser;
     private final String tag;
     private final NetworkResponse response;
 
-    public ParallelError(String tag, Constant.RequestTarget target, BaseParser parser, VolleyError error) {
+    public ParallelError(String tag, RequestTarget target, BaseParser parser, VolleyError error) {
         super(error);
         this.target = target;
         this.parser = parser;
@@ -35,7 +35,7 @@ public class ParallelError extends VolleyError {
     /**
      * @return the target
      */
-    public Constant.RequestTarget getRequestTarget() {
+    public RequestTarget getRequestTarget() {
         return target;
     }
 

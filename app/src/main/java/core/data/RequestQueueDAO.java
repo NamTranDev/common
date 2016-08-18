@@ -8,8 +8,8 @@ import java.util.HashMap;
 
 import core.connection.queue.QueueElement.Type;
 import core.util.Constant.RequestMethod;
-import core.util.Constant.RequestTarget;
 import core.util.Constant.RequestType;
+import core.util.RequestTarget;
 
 @SuppressWarnings("unused")
 @Table(name = "RequestQueue")

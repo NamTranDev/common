@@ -3,7 +3,7 @@ package core.connection.volley;
 import com.android.volley.NetworkResponse;
 import com.android.volley.VolleyError;
 
-import core.util.Constant.RequestTarget;
+import core.util.RequestTarget;
 
 
 @SuppressWarnings("unused")

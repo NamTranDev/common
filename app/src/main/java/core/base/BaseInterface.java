@@ -7,13 +7,14 @@ import android.support.annotation.AnimRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
+import android.util.Pair;
 import android.view.View;
 
 import core.connection.WebServiceRequester.WebServiceResultHandler;
 import core.connection.queue.QueueElement.Type;
 import core.dialog.GeneralDialog.ConfirmListener;
 import core.dialog.GeneralDialog.DecisionListener;
-import core.util.Constant.RequestTarget;
+import core.util.RequestTarget;
 import core.util.SingleClick;
 import core.util.SingleTouch;
 
@@ -276,7 +277,7 @@ public interface BaseInterface {
      */
     void makeRequest(String tag, boolean loading, Param content,
                      WebServiceResultHandler handler, RequestTarget target,
-                     String... extras);
+                     Pair<String, String>... extras);
 
     /**
      * This method is for making a connection to server base on the target and
@@ -294,13 +295,13 @@ public interface BaseInterface {
      * and implement the <code>QueueServiceListener</code> interface.
      *
      * @param tag     The activity starts this request
-     * @param content The content of the request including parameters and headers
      * @param type    The queue type (PASS, BLOCK, RETRY, STOP) for this request
+     * @param content The content of the request including parameters and headers
      * @param target  The function requested to the server
      * @param extras  The extra parameters to build api
      */
     void makeQueueRequest(String tag, Type type, Param content,
-                          RequestTarget target, String... extras);
+                          RequestTarget target, Pair<String, String>... extras);
 
 
     /**
@@ -323,7 +324,7 @@ public interface BaseInterface {
      * @param extras  The extra parameters to build api
      */
     void makeParallelRequest(String tag, Param content,
-                             RequestTarget target, String... extras);
+                             RequestTarget target, Pair<String, String>... extras);
 
     /**
      * This method is for making a background connection to server base on the
@@ -346,7 +347,7 @@ public interface BaseInterface {
      * @param extras  The extra parameters to build api
      */
     void makeBackgroundRequest(String tag, RequestTarget target,
-                               Param content, String... extras);
+                               Param content, Pair<String, String>... extras);
 
     /**
      * This method is for downloading a file from server base on the
@@ -372,7 +373,7 @@ public interface BaseInterface {
      * @param extras    The extra parameters to build api
      */
     void makeFileRequest(String tag, String path, String name, String extension, RequestTarget target,
-                         Param content, String... extras);
+                         Param content, Pair<String, String>... extras);
 
     /**
      * This method is to return the single instance of SingleTouch applying for

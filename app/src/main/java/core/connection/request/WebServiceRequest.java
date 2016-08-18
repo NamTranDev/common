@@ -19,8 +19,8 @@ import core.connection.volley.WebServiceError;
 import core.connection.volley.WebServiceResponse;
 import core.util.Constant;
 import core.util.Constant.RequestMethod;
-import core.util.Constant.RequestTarget;
 import core.util.Constant.RequestType;
+import core.util.RequestTarget;
 import core.util.Utils;
 
 /**

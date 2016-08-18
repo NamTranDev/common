@@ -4,7 +4,7 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.VolleyError;
 
 import core.base.BaseParser;
-import core.util.Constant.RequestTarget;
+import core.util.RequestTarget;
 
 public class QueueError extends VolleyError {
     /**

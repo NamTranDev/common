@@ -4,18 +4,15 @@ import java.util.List;
 import java.util.Map;
 
 import core.base.BaseResponse;
-import core.util.Constant;
+import core.util.RequestTarget;
 
-/**
- * Created by Tyrael on 8/9/16.
- */
 public class FileResponse extends BaseResponse {
 
-    private final Constant.RequestTarget target;
+    private final RequestTarget target;
     private final String file;
     private final String url;
 
-    public FileResponse(byte[] content, Map<String, String> headers, Map<String, List<String>> rawHeaders, Constant.RequestTarget target, String url, String file) {
+    public FileResponse(byte[] content, Map<String, String> headers, Map<String, List<String>> rawHeaders, RequestTarget target, String url, String file) {
         super(content, headers, rawHeaders);
         this.target = target;
         this.file = file;
@@ -25,7 +22,7 @@ public class FileResponse extends BaseResponse {
     /**
      * @return the target
      */
-    public Constant.RequestTarget getRequestTarget() {
+    public RequestTarget getRequestTarget() {
         return target;
     }
 

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import core.base.BaseParser;
 import core.base.BaseResponse;
-import core.util.Constant.RequestTarget;
+import core.util.RequestTarget;
 
 public class QueueResponse extends BaseResponse {
 

@@ -3,23 +3,20 @@ package core.connection.volley;
 import com.android.volley.NetworkResponse;
 import com.android.volley.VolleyError;
 
-import core.util.Constant;
+import core.util.RequestTarget;
 
-/**
- * Created by Tyrael on 8/9/16.
- */
 public class FileError extends VolleyError {
 
     /**
      *
      */
     private static final long serialVersionUID = 1L;
-    private final Constant.RequestTarget target;
+    private final RequestTarget target;
     private final NetworkResponse response;
     private final String file;
     private final String url;
 
-    public FileError(Constant.RequestTarget target, VolleyError error, String url, String file) {
+    public FileError(RequestTarget target, VolleyError error, String url, String file) {
         super(error);
         this.target = target;
         this.response = error.networkResponse;
@@ -30,7 +27,7 @@ public class FileError extends VolleyError {
     /**
      * @return the target
      */
-    public Constant.RequestTarget getRequestTarget() {
+    public RequestTarget getRequestTarget() {
         return target;
     }
 

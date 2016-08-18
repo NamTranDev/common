@@ -16,6 +16,7 @@ import core.connection.ParallelServiceRequester;
 import core.connection.volley.ParallelError;
 import core.connection.volley.ParallelResponse;
 import core.util.Constant;
+import core.util.RequestTarget;
 import core.util.Utils;
 
 @SuppressWarnings("SameParameterValue")
@@ -30,7 +31,7 @@ public class ParallelServiceRequest extends Request<ParallelResponse> {
      * The target function of the service for this request, determined by
      * Constant.RequestTarget enum
      */
-    private final Constant.RequestTarget target;
+    private final RequestTarget target;
 
     /**
      * The parser for this request's response
@@ -61,7 +62,7 @@ public class ParallelServiceRequest extends Request<ParallelResponse> {
 
 
     public ParallelServiceRequest(String tag, Constant.RequestType type,
-                                  Constant.RequestMethod method, String address, Constant.RequestTarget target,
+                                  Constant.RequestMethod method, String address, RequestTarget target,
                                   String api, Param content, BaseParser parser, ParallelServiceRequester requester) {
         super(method.getValue(), type.toString() + address + api, requester);
         this.method = method;
@@ -79,8 +80,8 @@ public class ParallelServiceRequest extends Request<ParallelResponse> {
     public Request<?> setRetryPolicy(RetryPolicy retryPolicy) {
         if (target != null) {
             return super.setRetryPolicy(new DefaultRetryPolicy(
-                    Constant.RequestTarget.timeout(target),
-                    Constant.RequestTarget.retry(target),
+                    RequestTarget.timeout(target),
+                    RequestTarget.retry(target),
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         }
         return super.setRetryPolicy(retryPolicy);

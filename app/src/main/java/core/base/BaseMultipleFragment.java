@@ -10,6 +10,7 @@ import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -20,7 +21,7 @@ import core.connection.queue.QueueElement;
 import core.dialog.GeneralDialog.ConfirmListener;
 import core.dialog.GeneralDialog.DecisionListener;
 import core.util.ActionTracker;
-import core.util.Constant.RequestTarget;
+import core.util.RequestTarget;
 import core.util.SingleClick;
 import core.util.SingleClick.SingleClickListener;
 import core.util.SingleTouch;
@@ -224,7 +225,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
 
     @Override
     public void makeFileRequest(String tag, String path, String name, String extension,
-                                RequestTarget target, Param content, String... extras) {
+                                RequestTarget target, Param content, Pair<String, String>... extras) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity())
@@ -239,7 +240,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
 
     @Override
     public void makeBackgroundRequest(String tag, RequestTarget target,
-                                      Param content, String... extras) {
+                                      Param content, Pair<String, String>... extras) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity())
@@ -255,7 +256,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
     @Override
     public void makeRequest(String tag, boolean loading, Param content,
                             WebServiceResultHandler handler, RequestTarget target,
-                            String... extras) {
+                            Pair<String, String>... extras) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity()).makeRequest(tag,
@@ -271,7 +272,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
 
     @Override
     public void makeQueueRequest(String tag, QueueElement.Type type, Param content,
-                                 RequestTarget target, String... extras) {
+                                 RequestTarget target, Pair<String, String>... extras) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity()).makeQueueRequest(tag, type, content, target, extras);
@@ -283,7 +284,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public void makeParallelRequest(String tag, Param content, RequestTarget target, String... extras) {
+    public void makeParallelRequest(String tag, Param content, RequestTarget target, Pair<String, String>... extras) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity()).makeParallelRequest(tag, content, target, extras);

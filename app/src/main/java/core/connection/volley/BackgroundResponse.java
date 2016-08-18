@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import core.base.BaseResponse;
-import core.util.Constant.RequestTarget;
+import core.util.RequestTarget;
 
 
 @SuppressWarnings("unused")

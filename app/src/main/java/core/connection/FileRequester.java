@@ -17,9 +17,7 @@ import com.android.volley.toolbox.Volley;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.WeakHashMap;
 
@@ -28,13 +26,12 @@ import core.connection.ssl.EasySslSocketFactory;
 import core.connection.ssl.TrustedSslSocketFactory;
 import core.connection.volley.FileError;
 import core.connection.volley.FileResponse;
-import core.connection.volley.ParallelError;
 import core.util.Constant;
+import core.util.Constant.RequestType;
+import core.util.Constant.StatusCode;
 import core.util.DLog;
+import core.util.RequestTarget;
 
-/**
- * Created by Tyrael on 8/9/16.
- */
 public class FileRequester implements Response.Listener<FileResponse>, Response.ErrorListener {
 
     private static final String TAG = FileRequester.class.getSimpleName();
@@ -75,13 +72,13 @@ public class FileRequester implements Response.Listener<FileResponse>, Response.
         if (request != null) {
             if (currentRequestingConnection < CONNECTIONS_LIMIT) {
                 if (httpQueue != null
-                        && request.getRequestType() == Constant.RequestType.HTTP) {
+                        && request.getRequestType() == RequestType.HTTP) {
                     currentRequestingConnection++;
                     httpQueue.add(request);
                     queue.remove(request);
                 }
                 if (sslQueue != null
-                        && request.getRequestType() == Constant.RequestType.HTTPS) {
+                        && request.getRequestType() == RequestType.HTTPS) {
                     currentRequestingConnection++;
                     sslQueue.add(request);
                     queue.remove(request);
@@ -148,23 +145,23 @@ public class FileRequester implements Response.Listener<FileResponse>, Response.
     public void onErrorResponse(VolleyError error) {
         DLog.d(TAG, "File >> onErrorResponse >> " + error.getMessage());
         Throwable cause = error.getCause();
-        Constant.StatusCode error_code = Constant.StatusCode.ERR_UNKNOWN;
+        StatusCode error_code = StatusCode.ERR_UNKNOWN;
         if (cause != null) {
             if (cause instanceof NoConnectionError) {
-                error_code = Constant.StatusCode.ERR_NO_CONNECTION;
+                error_code = StatusCode.ERR_NO_CONNECTION;
             } else if (cause instanceof NetworkError) {
-                error_code = Constant.StatusCode.ERR_NO_CONNECTION;
+                error_code = StatusCode.ERR_NO_CONNECTION;
             } else if (cause instanceof ServerError) {
-                error_code = Constant.StatusCode.ERR_SERVER_FAIL;
+                error_code = StatusCode.ERR_SERVER_FAIL;
             } else if (cause instanceof AuthFailureError) {
-                error_code = Constant.StatusCode.ERR_AUTH_FAIL;
+                error_code = StatusCode.ERR_AUTH_FAIL;
             } else if (cause instanceof ParseError) {
-                error_code = Constant.StatusCode.ERR_PARSING;
+                error_code = StatusCode.ERR_PARSING;
             } else if (cause instanceof TimeoutError) {
-                error_code = Constant.StatusCode.ERR_TIME_OUT;
+                error_code = StatusCode.ERR_TIME_OUT;
             }
         }
-        if (error instanceof ParallelError) {
+        if (error instanceof FileError) {
             FileError file_error = (FileError) error;
             notifyListeners(file_error.getRequestTarget(), error_code, file_error.getUrl(), file_error.getFile());
         }
@@ -182,23 +179,17 @@ public class FileRequester implements Response.Listener<FileResponse>, Response.
             bos.write(response.getContent());
             bos.flush();
             bos.close();
-            notifyListeners(response.getRequestTarget(), Constant.StatusCode.OK, response.getUrl(), response.getFile());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            notifyListeners(response.getRequestTarget(), Constant.StatusCode.ERR_STORE_FILE, response.getUrl(), response.getFile());
-        } catch (IOException e) {
-            e.printStackTrace();
-            notifyListeners(response.getRequestTarget(), Constant.StatusCode.ERR_STORE_FILE, response.getUrl(), response.getFile());
+            notifyListeners(response.getRequestTarget(), StatusCode.OK, response.getUrl(), response.getFile());
         } catch (Exception e) {
             e.printStackTrace();
-            notifyListeners(response.getRequestTarget(), Constant.StatusCode.ERR_STORE_FILE, response.getUrl(), response.getFile());
+            notifyListeners(response.getRequestTarget(), StatusCode.ERR_STORE_FILE, response.getUrl(), response.getFile());
         }
         handleQueue();
     }
 
-    private void notifyListeners(Constant.RequestTarget target, Constant.StatusCode status, String url, String file) {
+    private void notifyListeners(RequestTarget target, StatusCode status, String url, String file) {
         for (FileResultHandler listener : listeners.values()) {
-            if (status == Constant.StatusCode.OK)
+            if (status == StatusCode.OK)
                 listener.onSuccess(url, file, target);
             else
                 listener.onFail(url, file, target, status);
@@ -216,7 +207,7 @@ public class FileRequester implements Response.Listener<FileResponse>, Response.
          * @param file   The path where the downloaded file is stored
          * @param target The target request had been called
          */
-        void onSuccess(String url, String file, Constant.RequestTarget target);
+        void onSuccess(String url, String file, RequestTarget target);
 
         /**
          * <b>Specified by:</b> onFail(...) in FileResultHandler <br>
@@ -229,6 +220,6 @@ public class FileRequester implements Response.Listener<FileResponse>, Response.
          * @param target The target request had been called
          * @param code   The code indicating the type of failure
          */
-        void onFail(String url, String file, Constant.RequestTarget target, Constant.StatusCode code);
+        void onFail(String url, String file, RequestTarget target, StatusCode code);
     }
 }

@@ -4,7 +4,6 @@ import com.android.volley.Request;
 import com.example.commonframe.R;
 
 import core.base.BaseApplication;
-import core.base.BaseParser;
 
 @SuppressWarnings({"UnusedParameters", "PointlessBooleanExpression", "unused", "ConstantConditions"})
 public class Constant {
@@ -95,87 +94,6 @@ public class Constant {
         }
     }
 
-    public enum RequestTarget {
-        WEBSERVICE_REQUEST, BACKGROUND_REQUEST;
-
-        public static BaseParser parser(RequestTarget target) {
-            switch (target) {
-                case WEBSERVICE_REQUEST:
-                    // return new WebServiceParser();
-                    return null;
-                case BACKGROUND_REQUEST:
-                    // return new BackgroundServiceParser();
-                    return null;
-                default:
-                    return null;
-            }
-        }
-
-        public static String host(RequestTarget target) {
-            switch (target) {
-                case WEBSERVICE_REQUEST:
-                    return SERVER_URL;
-                case BACKGROUND_REQUEST:
-                    return SERVER_URL;
-                default:
-                    return SERVER_URL;
-            }
-        }
-
-        public static RequestMethod method(RequestTarget target) {
-            switch (target) {
-                case WEBSERVICE_REQUEST:
-                    return RequestMethod.POST;
-                case BACKGROUND_REQUEST:
-                    return RequestMethod.POST;
-                default:
-                    return RequestMethod.GET;
-            }
-        }
-
-        public static RequestType type(RequestTarget target) {
-            switch (target) {
-                case WEBSERVICE_REQUEST:
-                    return RequestType.HTTP;
-                case BACKGROUND_REQUEST:
-                    return RequestType.HTTPS;
-                default:
-                    return RequestType.HTTP;
-            }
-        }
-
-        public static int timeout(RequestTarget target) {
-            switch (target) {
-                case WEBSERVICE_REQUEST:
-                    return 5000;
-                case BACKGROUND_REQUEST:
-                    return 5000;
-                default:
-                    return TIMEOUT_CONNECT;
-            }
-        }
-
-        public static int retry(RequestTarget target) {
-            switch (target) {
-                case WEBSERVICE_REQUEST:
-                    return 1;
-                case BACKGROUND_REQUEST:
-                    return 0;
-                default:
-                    return RETRY_CONNECT;
-            }
-        }
-
-        public static String build(RequestTarget target, String... extras) {
-            switch (target) {
-                case WEBSERVICE_REQUEST:
-                    return "/wait.php";
-                default:
-                    break;
-            }
-            return "";
-        }
-    }
     /* END NETWORK */
 
     public enum Header {

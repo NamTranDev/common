@@ -28,7 +28,9 @@ import core.connection.ssl.TrustedSslSocketFactory;
 import core.connection.volley.ParallelError;
 import core.connection.volley.ParallelResponse;
 import core.util.Constant;
+import core.util.Constant.StatusCode;
 import core.util.DLog;
+import core.util.RequestTarget;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public final class ParallelServiceRequester implements Response.Listener<ParallelResponse>, Response.ErrorListener {
@@ -203,7 +205,7 @@ public final class ParallelServiceRequester implements Response.Listener<Paralle
         }
     }
 
-    private void notifyListeners(Notify status, BaseResult result, Constant.RequestTarget target, String tag, String error, Constant.StatusCode code) {
+    private void notifyListeners(Notify status, BaseResult result, RequestTarget target, String tag, String error, StatusCode code) {
         for (ParallelServiceListener listener : listeners.values()) {
             switch (status) {
                 case RESULT_SUCCESS:
@@ -258,6 +260,6 @@ public final class ParallelServiceRequester implements Response.Listener<Paralle
          * @param error  The string explaining the failure of the request
          * @param code   The code indicating the type of failure
          */
-        void onFail(Constant.RequestTarget target, String tag, String error, Constant.StatusCode code);
+        void onFail(RequestTarget target, String tag, String error, Constant.StatusCode code);
     }
 }

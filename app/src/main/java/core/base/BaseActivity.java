@@ -12,6 +12,7 @@ import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -30,8 +31,8 @@ import core.dialog.GeneralDialog.DecisionListener;
 import core.dialog.LoadingDialog;
 import core.util.ActionTracker;
 import core.util.Constant;
-import core.util.Constant.RequestTarget;
 import core.util.DLog;
+import core.util.RequestTarget;
 import core.util.SingleClick;
 import core.util.SingleClick.SingleClickListener;
 import core.util.SingleTouch;
@@ -263,14 +264,14 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
 
     @Override
     public void makeFileRequest(String tag, String path, String name, String extension,
-                                RequestTarget target, Param content, String... extras) {
+                                RequestTarget target, Param content, Pair<String, String>... extras) {
         if (!Requester.startFileRequest(tag, target, extras, content, path, name, extension))
             DLog.d(TAG, "makeFileRequest failed with " + tag);
     }
 
     @Override
     public void makeBackgroundRequest(String tag, RequestTarget target,
-                                      Param content, String... extras) {
+                                      Param content, Pair<String, String>... extras) {
         if (!Utils.isNetworkConnectionAvailable()) {
             return;
         }
@@ -279,7 +280,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public void makeParallelRequest(String tag, Param content, RequestTarget target, String... extras) {
+    public void makeParallelRequest(String tag, Param content, RequestTarget target, Pair<String, String>... extras) {
         if (!Requester.startParallelRequest(tag, target, extras, content))
             DLog.d(TAG, "makeParallelRequest failed with " + tag);
     }
@@ -287,7 +288,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     @Override
     public void makeRequest(String tag, boolean loading, Param content,
                             WebServiceResultHandler handler, RequestTarget target,
-                            String... extras) {
+                            Pair<String, String>... extras) {
         if (!Utils.isNetworkConnectionAvailable()) {
             closeLoadingDialog();
             showAlertDialog(
@@ -308,7 +309,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
 
     @Override
     public void makeQueueRequest(String tag, Type type, Param content,
-                                 RequestTarget target, String... extras) {
+                                 RequestTarget target, Pair<String, String>... extras) {
         if (!Requester.startQueueRequest(tag, target, extras, type, content))
             DLog.d(TAG, "makeQueueRequest failed with " + tag);
     }

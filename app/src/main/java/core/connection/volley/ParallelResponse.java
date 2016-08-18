@@ -5,16 +5,16 @@ import java.util.Map;
 
 import core.base.BaseParser;
 import core.base.BaseResponse;
-import core.util.Constant;
+import core.util.RequestTarget;
 
 public class ParallelResponse extends BaseResponse {
 
-    private final Constant.RequestTarget target;
+    private final RequestTarget target;
     private final BaseParser parser;
     private final String tag;
 
     public ParallelResponse(byte[] content, BaseParser parser, Map<String, String> headers, Map<String, List<String>> rawHeaders,
-                            Constant.RequestTarget target, String tag) {
+                            RequestTarget target, String tag) {
         super(content, headers, rawHeaders);
         this.target = target;
         this.parser = parser;
@@ -32,7 +32,7 @@ public class ParallelResponse extends BaseResponse {
     /**
      * @return the target
      */
-    public Constant.RequestTarget getRequestTarget() {
+    public RequestTarget getRequestTarget() {
         return target;
     }
 }
