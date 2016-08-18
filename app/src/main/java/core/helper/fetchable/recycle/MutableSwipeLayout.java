@@ -11,7 +11,7 @@ import android.widget.RelativeLayout;
 import com.example.commonframe.R;
 
 
-public class FetchableSwipeLayout extends SwipeRefreshLayout {
+public class MutableSwipeLayout extends SwipeRefreshLayout {
 
     private static final int MAX_ALPHA = 255;
 
@@ -23,12 +23,12 @@ public class FetchableSwipeLayout extends SwipeRefreshLayout {
     private Animation in;
     private Animation out;
 
-    public FetchableSwipeLayout(Context context) {
+    public MutableSwipeLayout(Context context) {
         super(context);
         init();
     }
 
-    public FetchableSwipeLayout(Context context, AttributeSet attrs) {
+    public MutableSwipeLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }

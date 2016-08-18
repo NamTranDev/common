@@ -9,9 +9,9 @@ import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
 
-public class FetchableRecycleView extends RecyclerView implements FetchableSwipeLayout.OnRefreshListener {
+public class MutableRecycleView extends RecyclerView implements MutableSwipeLayout.OnRefreshListener {
 
-    private FetchableSwipeLayout refresher;
+    private MutableSwipeLayout refresher;
     private LinearLayoutManager layoutManager;
     private OnScrollListener onScrollListener;
     private OnRefreshListener onRefreshListener;
@@ -21,17 +21,17 @@ public class FetchableRecycleView extends RecyclerView implements FetchableSwipe
     private boolean isRefreshing;
     private boolean isFirstLoadSkipped;
 
-    public FetchableRecycleView(Context context) {
+    public MutableRecycleView(Context context) {
         super(context);
         init();
     }
 
-    public FetchableRecycleView(Context context, AttributeSet attrs) {
+    public MutableRecycleView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public FetchableRecycleView(Context context, AttributeSet attrs, int defStyle) {
+    public MutableRecycleView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
     }
@@ -45,11 +45,11 @@ public class FetchableRecycleView extends RecyclerView implements FetchableSwipe
                 ViewParent parent = getParent();
                 if (parent != null && parent instanceof RelativeLayout) {
                     ViewParent grand = parent.getParent();
-                    if (grand != null && grand instanceof FetchableSwipeLayout) {
-                        refresher = (FetchableSwipeLayout) grand;
+                    if (grand != null && grand instanceof MutableSwipeLayout) {
+                        refresher = (MutableSwipeLayout) grand;
                         refresher.setEnabled(false);
                         refresher.setNestedScrollingEnabled(true);
-                        refresher.setOnRefreshListener(FetchableRecycleView.this);
+                        refresher.setOnRefreshListener(MutableRecycleView.this);
                         refresher.setEnableRefreshProgress(false);
                         getViewTreeObserver().removeOnGlobalLayoutListener(this);
                     }
@@ -155,14 +155,16 @@ public class FetchableRecycleView extends RecyclerView implements FetchableSwipe
                             interruptRefresh();
                             isLoadingMore = true;
                             onLoadMoreListener.onLoadMore();
-                            refresher.startLoadingAnimation();
+                            if (refresher != null)
+                                refresher.startLoadingAnimation();
                             System.out.println("load more while refreshing");
                         }
                     } else {
                         interruptRefresh();
                         isLoadingMore = true;
                         onLoadMoreListener.onLoadMore();
-                        refresher.startLoadingAnimation();
+                        if (refresher != null)
+                            refresher.startLoadingAnimation();
                         System.out.println("load more");
                     }
                 }
@@ -228,6 +230,7 @@ public class FetchableRecycleView extends RecyclerView implements FetchableSwipe
     }
 
     public interface OnLoadMoreListener {
+
         void onLoadMore();
 
         boolean shouldOverrideRefreshProcess();
