@@ -1,6 +1,6 @@
 package core.helper.fetchable.recycle;
 
-import android.graphics.Color;
+import android.support.annotation.LayoutRes;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
@@ -13,18 +13,19 @@ import core.util.SingleClick;
 import core.util.SingleTouch;
 
 
-public class RecycleAdapter<T> extends RecyclerView.Adapter implements SingleClick.SingleClickListener {
+public abstract class RecycleAdapter<T> extends RecyclerView.Adapter implements SingleClick.SingleClickListener {
 
     public static final int HEADER_TYPE = 1;
-    public static final int NORMAL_TYPE = 2;
+    public static final int ITEM_TYPE = 2;
 
-    private RecycleInterface.OnItemClickListener<T> listener;
-    private ArrayList<T> items;
-    private SingleClick singleClick;
-    private SingleTouch singleTouch;
-    private LayoutInflater inflater;
+    protected final RecycleInterface<T> listener;
+    protected final ArrayList<T> items;
+    private final SingleClick singleClick;
+    private final SingleTouch singleTouch;
+    private final LayoutInflater inflater;
 
-    public RecycleAdapter(LayoutInflater inflater, ArrayList<T> items, RecycleInterface.OnItemClickListener<T> listener, SingleTouch singleTouch) {
+    public RecycleAdapter(LayoutInflater inflater, ArrayList<T> items, RecycleInterface<T> listener, SingleTouch singleTouch) {
+        super();
         this.inflater = inflater;
         this.listener = listener;
         this.items = items;
@@ -34,19 +35,14 @@ public class RecycleAdapter<T> extends RecyclerView.Adapter implements SingleCli
     }
 
     @Override
-    public int getItemViewType(int position) {
-        return (position % 5 == 0) ? HEADER_TYPE : NORMAL_TYPE;
-    }
-
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public final ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ViewHolder view = null;
         switch (viewType) {
             case HEADER_TYPE:
-                view = new HeaderViewHolder<String>(inflater.inflate(0, parent, false));
+                view = new HeaderViewHolder<String>(inflater.inflate(getHeaderLayoutResource(), parent, false));
                 break;
-            case NORMAL_TYPE:
-                view = new NormalViewHolder<String>(inflater.inflate(0, parent, false));
+            case ITEM_TYPE:
+                view = new ItemViewHolder<String>(inflater.inflate(getItemLayoutResource(), parent, false));
                 break;
         }
         if (view != null && view.itemView != null) {
@@ -58,45 +54,48 @@ public class RecycleAdapter<T> extends RecyclerView.Adapter implements SingleCli
         return view;
     }
 
+    @LayoutRes
+    protected abstract int getHeaderLayoutResource();
+
+    @LayoutRes
+    protected abstract int getItemLayoutResource();
+
+    protected abstract void bindHeaderView(HeaderViewHolder<T> holder, T data, int position);
+
+    protected abstract void bindItemView(ItemViewHolder<T> holder, T data, int position);
+
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public final void onBindViewHolder(ViewHolder holder, int position) {
 
         if (holder != null) {
             switch (holder.getItemViewType()) {
                 case HEADER_TYPE:
-                    // bind header
                     HeaderViewHolder header = (HeaderViewHolder) holder;
-                    header.itemView.setBackgroundColor(Color.RED);
+                    bindHeaderView(header, items.get(position), position);
                     header.setData(items.get(position));
                     break;
-                case NORMAL_TYPE:
-                    // bind normal
-                    NormalViewHolder normal = (NormalViewHolder) holder;
-                    normal.itemView.setBackgroundColor(Color.GREEN);
-                    normal.setData(items.get(position));
+                case ITEM_TYPE:
+                    ItemViewHolder item = (ItemViewHolder) holder;
+                    bindItemView(item, items.get(position), position);
+                    item.setData(items.get(position));
                     break;
             }
 
         }
     }
 
-    @Override
-    public int getItemCount() {
-        return items.size();
-    }
-
 
     @Override
-    public void onSingleClick(View v) {
+    public final void onSingleClick(View v) {
         Object holder = v.getTag();
         if (holder instanceof HeaderViewHolder) {
             listener.onItemClick(v, (T) ((HeaderViewHolder) holder).getData(), ((HeaderViewHolder) holder).getAdapterPosition(), HEADER_TYPE);
-        } else if (holder instanceof NormalViewHolder) {
-            listener.onItemClick(v, (T) ((NormalViewHolder) holder).getData(), ((NormalViewHolder) holder).getAdapterPosition(), HEADER_TYPE);
+        } else if (holder instanceof ItemViewHolder) {
+            listener.onItemClick(v, (T) ((ItemViewHolder) holder).getData(), ((ItemViewHolder) holder).getAdapterPosition(), ITEM_TYPE);
         }
     }
 
-    private class HeaderViewHolder<T> extends RecyclerView.ViewHolder {
+    protected class HeaderViewHolder<T> extends RecyclerView.ViewHolder {
 
         private T data;
 
@@ -117,11 +116,11 @@ public class RecycleAdapter<T> extends RecyclerView.Adapter implements SingleCli
         }
     }
 
-    private class NormalViewHolder<T> extends RecyclerView.ViewHolder {
+    protected class ItemViewHolder<T> extends RecyclerView.ViewHolder {
 
         private T data;
 
-        public NormalViewHolder(View view) {
+        public ItemViewHolder(View view) {
             super(view);
         }
 
