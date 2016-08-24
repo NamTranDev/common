@@ -1,5 +1,7 @@
 package core.data;
 
+import android.util.Pair;
+
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
@@ -40,7 +42,7 @@ public class RequestQueueDAO extends Model {
     private Type type;
 
     @Column(name = "extra")
-    private String[] extra;
+    private Pair[] extra;
 
     @Column(name = "sent")
     private boolean sent;
@@ -51,7 +53,7 @@ public class RequestQueueDAO extends Model {
 
     public RequestQueueDAO(String tag, RequestType protocol,
                            RequestMethod method, String address, RequestTarget target, Type type,
-                           String[] extra, HashMap<String, String> headers, byte[] body, boolean sent) {
+                           Pair<String, String>[] extra, HashMap<String, String> headers, byte[] body, boolean sent) {
         super();
         this.tag = tag;
         this.protocol = protocol;
@@ -124,7 +126,7 @@ public class RequestQueueDAO extends Model {
     /**
      * @return the extra
      */
-    public String[] getExtra() {
+    public Pair<String, String>[] getExtra() {
         return extra;
     }
 
