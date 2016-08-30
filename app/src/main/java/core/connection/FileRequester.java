@@ -61,9 +61,7 @@ public class FileRequester implements Response.Listener<FileResponse>, Response.
 
     public static void addRequest(FileRequest request) {
         if (request != null) {
-            if (currentRequestingConnection >= CONNECTIONS_LIMIT) {
-                queue.add(request);
-            }
+            queue.add(request);
             startRequest(request);
         }
     }
