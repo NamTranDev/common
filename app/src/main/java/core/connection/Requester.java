@@ -20,7 +20,7 @@ public class Requester {
 
     private static final String TAG = "Requester";
 
-    public static boolean startWSRequest(String tag, RequestTarget target, Pair<String, String>[] extras, Param content, WebServiceResultHandler handler) {
+    public static boolean startWSRequest(String tag, RequestTarget target, Param content, WebServiceResultHandler handler, Pair<String, String>... extras) {
 
         try {
             WebServiceRequest request;
@@ -42,7 +42,7 @@ public class Requester {
         }
     }
 
-    public static boolean startBackgroundRequest(String tag, RequestTarget target, Pair<String, String>[] extras, Param content) {
+    public static boolean startBackgroundRequest(String tag, RequestTarget target, Param content, Pair<String, String>... extras) {
         try {
             BackgroundServiceRequest request;
             if (BaseProperties.bgRequester == null)
@@ -64,7 +64,7 @@ public class Requester {
     }
 
     public static boolean startQueueRequest(String tag, RequestTarget target,
-                                            Pair<String, String>[] extras, QueueElement.Type type, Param content) {
+                                            QueueElement.Type type, Param content, Pair<String, String>... extras) {
         try {
             QueueServiceRequest request;
             if (BaseProperties.queueRequester == null)
@@ -87,7 +87,7 @@ public class Requester {
     }
 
     public static boolean startParallelRequest(String tag, RequestTarget target,
-                                               Pair<String, String>[] extras, Param content) {
+                                               Param content, Pair<String, String>... extras) {
         try {
             ParallelServiceRequest request;
             if (BaseProperties.parallelRequester == null)
@@ -109,7 +109,7 @@ public class Requester {
     }
 
     public static boolean startFileRequest(String tag, RequestTarget target,
-                                           Pair<String, String>[] extras, Param content, String path, String name, String extension) {
+                                           Param content, String path, String name, String extension, Pair<String, String>... extras) {
         try {
             FileRequest request;
             if (BaseProperties.fileRequester == null)

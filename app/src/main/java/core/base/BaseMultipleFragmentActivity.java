@@ -449,7 +449,7 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     @Override
     public void makeFileRequest(String tag, String path, String name, String extension,
                                 RequestTarget target, Param content, Pair<String, String>... extras) {
-        if (!Requester.startFileRequest(tag, target, extras, content, path, name, extension))
+        if (!Requester.startFileRequest(tag, target, content, path, name, extension, extras))
             DLog.d(TAG, "makeFileRequest failed with " + tag);
     }
 
@@ -459,7 +459,7 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
         if (!Utils.isNetworkConnectionAvailable()) {
             return;
         }
-        if (!Requester.startBackgroundRequest(tag, target, extras, content))
+        if (!Requester.startBackgroundRequest(tag, target, content, extras))
             DLog.d(TAG, "makeBackgroundRequest failed with " + tag);
     }
 
@@ -479,7 +479,7 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
         }
         if (loading)
             showLoadingDialog(this, getLoadingDialogLayoutResource(), getString(R.string.loading_dialog_tv));
-        if (!Requester.startWSRequest(tag, target, extras, content, handler)) {
+        if (!Requester.startWSRequest(tag, target, content, handler, extras)) {
             DLog.d(TAG, "makeRequest failed with " + tag);
             closeLoadingDialog();
         }
@@ -488,13 +488,13 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     @Override
     public void makeQueueRequest(String tag, Type type, Param content,
                                  RequestTarget target, Pair<String, String>... extras) {
-        if (!Requester.startQueueRequest(tag, target, extras, type, content))
+        if (!Requester.startQueueRequest(tag, target, type, content, extras))
             DLog.d(TAG, "makeQueueRequest failed with " + tag);
     }
 
     @Override
     public void makeParallelRequest(String tag, Param content, RequestTarget target, Pair<String, String>... extras) {
-        if (!Requester.startParallelRequest(tag, target, extras, content))
+        if (!Requester.startParallelRequest(tag, target, content, extras))
             DLog.d(TAG, "makeParallelRequest failed with " + tag);
     }
 
