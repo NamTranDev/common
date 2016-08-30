@@ -24,6 +24,7 @@
     <!-- Error -->
     <string name="error_parsing_fail">Parsing Failed!</string>
     <string name="error_connection_fail">Connection Failed!</string>
+    <string name="error_queue_in_request">Another request is executing!</string>
     <string name="error_auth_fail">Authentication Failed!</string>
     <string name="error_server_fail">Server Failed!</string>
     <string name="error_conneciton_time_out">Connection Time Out!</string>

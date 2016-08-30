@@ -7,6 +7,7 @@ import com.activeandroid.serializer.TypeSerializer;
 import org.json.JSONArray;
 
 final public class StringPairSerializer extends TypeSerializer {
+
     @Override
     public Class<?> getDeserializedType() {
         return Pair[].class;

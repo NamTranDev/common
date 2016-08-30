@@ -181,7 +181,6 @@ public class Utils {
         return Math.round(d);
     }
 
-
     public static double[] getMiddleLocation(double lat1, double lon1, double lat2, double lon2) {
 
         double dLon = Math.toRadians(lon2 - lon1);

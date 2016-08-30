@@ -9,6 +9,7 @@ import core.util.RequestTarget;
 
 @SuppressWarnings("unused")
 public class WebServiceError extends VolleyError {
+
     /**
      *
      */

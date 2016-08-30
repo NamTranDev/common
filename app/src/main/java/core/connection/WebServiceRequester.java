@@ -42,6 +42,7 @@ import core.util.RequestTarget;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public final class WebServiceRequester implements Listener<WebServiceResponse>,
         ErrorListener {
+
     private final static String TAG = WebServiceRequester.class.getSimpleName();
     private static WebServiceRequester instance;
     private static RequestQueue httpQueue;

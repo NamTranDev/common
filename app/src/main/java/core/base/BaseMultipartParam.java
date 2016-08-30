@@ -19,34 +19,42 @@ public abstract class BaseMultipartParam implements Param {
      * The multipart form data header
      */
     private static final String MULTIPART_FORM_DATA = "multipart/form-data;boundary=";
+
     /**
      * The break line for multipart header
      */
     private static final String BREAK_LINE = "\r\n";
+
     /**
      * The hyphens for multipart header
      */
     private static final String HYPHENS = "--";
+
     /**
      * The content of multipart header
      */
     private static final String CONTENT = "%s%s%sContent-Disposition: form-data; name=\"%s\"; filename=\"%s\"%s Content-Type: %s %s Content-Transfer-Encoding: binary %s%s";
+
     /**
      * The set of key-value headers for the webservice message
      */
     private final HashMap<String, String> headers;
+
     /**
      * The set of key-value text parts
      */
     private final HashMap<String, Text> texts;
+
     /**
      * The default value of charset
      */
     private final String CHARSET = "UTF-8";
+
     /**
      * The set of key-value file parts
      */
     private final HashMap<String, Binary> binaries;
+
     /**
      * The boundary string for the request
      */

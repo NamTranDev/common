@@ -151,6 +151,13 @@ public class QueueServiceRequest extends Request<QueueResponse> {
     }
 
     /**
+     * @return the request target
+     */
+    public RequestTarget getRequestTarget() {
+        return target;
+    }
+
+    /**
      * @return the url
      */
     public String getUrl() {

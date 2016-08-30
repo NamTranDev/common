@@ -616,11 +616,11 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
         }
     }
 
-    /*
-    * The method is to remove all the child fragments in the parent fragment container
-    * The removing transaction is same as the parent's transaction
-    * BaseFragmentContainer must be use for the fragment container instead of normal FrameLayout
-    * */
+    /**
+     * The method is to remove all the child fragments in the parent fragment container
+     * The removing transaction is same as the parent's transaction
+     * BaseFragmentContainer must be use for the fragment container instead of normal FrameLayout
+     */
 
     private void removeAllChildFragments(View parentFragment, FragmentTransaction transaction) {
         if (parentFragment != null) {

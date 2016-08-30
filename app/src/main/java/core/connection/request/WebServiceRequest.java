@@ -43,6 +43,7 @@ import core.util.Utils;
 
 @SuppressWarnings("SameParameterValue")
 public class WebServiceRequest extends Request<WebServiceResponse> {
+
     /**
      * The content parameters and headers for this request
      */

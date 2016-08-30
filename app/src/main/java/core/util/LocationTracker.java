@@ -39,61 +39,74 @@ public class LocationTracker {
      * The context of the using class
      */
     private final Context context;
+
     /**
      * The current location detection thread, this reference is used for
      * starting and stopping purpose while needed
      */
     private Thread current_update_thread;
+
     /**
      * The runnable core of location detection, this reference is used for
      * starting and stopping purpose while needed
      */
     private LocationUpdate location_update;
+
     /**
      * The generated tag is being given for each and every location detection
      * runnable to indicate the last and the only runnable can return the value
      * or failure
      */
     private int processing_tag;
+
     /**
      * The time-out in second of the process, 0 means no time-out, after
      * time-out, the process will result a time-out failure
      */
     private int timeOut;
+
     /**
      * The sleeping time in second between each detection, minimum is 1 second
      */
     private int timeStep;
+
     /**
      * The flag that allows to use GPS as a source to detect location
      */
     private boolean GPSAllowed;
+
     /**
      * The flag that allows to use Network as a source to detect location
      */
     private boolean NetworkAllowed;
+
     /**
      * The flag that allows to retrieve location from last time detection
      */
     private boolean LastKnowLocationAllowed;
+
     /**
      * The flag that allows to retrieve location continuously, false means only
      * detect successfully once
      */
     private boolean TrackingModeAllowed;
+
     /**
      * The pre-defined method as a preferred method for location detection,
      * either GPS or NETWORK
      */
     private LocationUpdateMethod prioritizedMethod;
+
     /**
      * The listener to call for the status of the location detection
      */
     private LocationUpdateListener listener;
+
     /**
      * The min tracking distance (meter) if there are changes in location
      */
     private int minDistance;
+
     /**
      * The last tracked location, this is for calculating the changes in distance
      */
@@ -520,6 +533,26 @@ public class LocationTracker {
          */
         private Location currentLocationGPS = null;
         /**
+         * The GPS listener to detect the location changes base on GPS
+         */
+        private final LocationListener GPSListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                OnGPSChange(location);
+            }
+
+            public void onProviderDisabled(String provider) {
+                flagGPSEnable = false;
+            }
+
+            public void onProviderEnabled(String provider) {
+                flagGPSEnable = true;
+            }
+
+            public void onStatusChanged(String provider, int status,
+                                        Bundle extras) {
+            }
+        };
+        /**
          * The result location by Network detection
          */
         private Location currentLocationNetwork = null;
@@ -537,26 +570,6 @@ public class LocationTracker {
 
             public void onProviderEnabled(String provider) {
                 flagNetworkEnable = true;
-            }
-
-            public void onStatusChanged(String provider, int status,
-                                        Bundle extras) {
-            }
-        };
-        /**
-         * The GPS listener to detect the location changes base on GPS
-         */
-        private final LocationListener GPSListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-                OnGPSChange(location);
-            }
-
-            public void onProviderDisabled(String provider) {
-                flagGPSEnable = false;
-            }
-
-            public void onProviderEnabled(String provider) {
-                flagGPSEnable = true;
             }
 
             public void onStatusChanged(String provider, int status,

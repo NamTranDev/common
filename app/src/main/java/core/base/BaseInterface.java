@@ -152,7 +152,6 @@ public interface BaseInterface {
     void showAlertDialog(Context context, int id, @LayoutRes int layout, @DrawableRes int icon, String title,
                          String message, String confirm, Object onWhat, ConfirmListener listener);
 
-
     /**
      * This method is to show a loading dialog and stops user from interacting
      * with other views. Only once instance of this dialog will be allowed at a

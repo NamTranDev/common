@@ -18,15 +18,18 @@ import core.util.Utils;
 
 @SuppressWarnings({"BooleanMethodIsAlwaysInverted", "SameParameterValue", "UnusedReturnValue", "UnusedParameters"})
 public class DataSaver {
+
     /**
      * The name of this storage in the system
      */
     private static final String KEY_SHARED_PREFERENCES = Utils.getSharedPreferenceKey();
+
     /**
      * Represent the instance of this class, only one instance can be used at a
      * time and apply for the entire application
      */
     private static DataSaver instance;
+
     /**
      * The reference to SharedPreferences which actually read and write the data
      * to the storage

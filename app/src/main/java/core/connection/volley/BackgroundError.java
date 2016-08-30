@@ -8,6 +8,7 @@ import core.util.RequestTarget;
 
 @SuppressWarnings("unused")
 public class BackgroundError extends VolleyError {
+
     /**
      *
      */

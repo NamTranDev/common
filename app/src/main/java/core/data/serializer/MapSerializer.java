@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 final public class MapSerializer extends TypeSerializer {
+
     @Override
     public Class<?> getDeserializedType() {
         return Map.class;

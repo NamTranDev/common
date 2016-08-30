@@ -64,16 +64,19 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
      * Tag of BaseActivity class for Log usage
      */
     private static String TAG = BaseActivity.class.getSimpleName();
+
     /**
      * The flag indicating that the activity is finished and should free all of
      * resources at <code>onStop()</code> method
      */
     @State
     boolean isFinished = false;
+
     /**
      * The single click to handle click action for this screen
      */
     private SingleClick singleClick = null;
+
     /**
      * The unbinder of Butterknife to unbind views when the fragment view is destroyed
      */

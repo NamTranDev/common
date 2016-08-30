@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 final public class HashMapSerializer extends TypeSerializer {
+
     @Override
     public Class<?> getDeserializedType() {
         return HashMap.class;

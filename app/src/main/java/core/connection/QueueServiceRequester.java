@@ -78,7 +78,25 @@ public final class QueueServiceRequester implements Listener<QueueResponse>,
                     notifyListeners(Notify.START, queue.get(0), null, null,
                             null, null);
                     startRequest(queue.get(0).getRequest());
+                } else {
+                    notifyListeners(Notify.FAIL,
+                            queue.get(0),
+                            null,
+                            queue.get(0).getRequest().getRequestTarget(),
+                            BaseApplication
+                                    .getContext()
+                                    .getString(R.string.error_connection_fail),
+                            StatusCode.ERR_NO_CONNECTION);
                 }
+            } else {
+                notifyListeners(Notify.FAIL,
+                        queue.get(0),
+                        null,
+                        queue.get(0).getRequest().getRequestTarget(),
+                        BaseApplication
+                                .getContext()
+                                .getString(R.string.error_queue_in_request),
+                        StatusCode.ERR_QUEUE_IN_REQUEST);
             }
         } else {
             notifyListeners(Notify.FINISH, null, null, null, null, null);

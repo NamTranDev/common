@@ -67,8 +67,10 @@ public class QueueElement {
         return false;
     }
 
-    // assume server is always correct and can be fixed if there are problems.
-    // These types only apply for the case of network errors
+    /**
+     * assume server is always correct and can be fixed if there are problems.
+     * These types only apply for the case of network errors
+     */
     public enum Type {
         PASS, // Keep requesting the next element in queue
         BLOCK, // Block the queue here, wait user to retry (user action)

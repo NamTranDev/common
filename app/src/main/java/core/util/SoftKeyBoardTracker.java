@@ -22,19 +22,23 @@ import android.widget.EditText;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class SoftKeyBoardTracker {
+
     /**
      * The root view of the UI where the soft keyboard registered into
      */
     private final View root;
+
     /**
      * The soft keyboard listener which allows to response every time the soft
      * keyboard changes its status
      */
     private final OnKeyBoardListener listener;
+
     /**
      * The global layout listener to detect the change of the global layout
      */
     private OnGlobalLayoutListener layoutListener;
+
     /**
      * The flag that indicates the soft keyboard has shown or not
      */

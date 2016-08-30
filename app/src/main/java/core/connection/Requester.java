@@ -17,6 +17,7 @@ import core.util.RequestTarget;
 
 @SuppressWarnings({"BooleanMethodIsAlwaysInverted", "unused"})
 public class Requester {
+
     private static final String TAG = "Requester";
 
     public static boolean startWSRequest(String tag, RequestTarget target, Pair<String, String>[] extras, Param content, WebServiceResultHandler handler) {

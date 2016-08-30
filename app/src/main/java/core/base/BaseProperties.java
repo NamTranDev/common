@@ -18,6 +18,7 @@ import core.util.SingleBackPress;
 import core.util.SingleTouch;
 
 public abstract class BaseProperties {
+
     /**
      * Loading dialog reference, this loading dialog will be applied for the
      * entire application
@@ -35,21 +36,25 @@ public abstract class BaseProperties {
      * entire application
      */
     public static GeneralDialog alertDialog = null;
+
     /**
      * The web service requester to make the request to server and return the
      * result to the context
      */
     public static WebServiceRequester wsRequester = null;
+
     /**
      * The queue service requester to make the request to server and return the
      * result to the listeners
      */
     public static QueueServiceRequester queueRequester = null;
+
     /**
      * The file requester to make the file download requests to server and return the
      * result to the listeners
      */
     public static FileRequester fileRequester = null;
+
     /**
      * The parallel service requester to make the requests (asynchronously) to server and return the
      * result to the listeners
@@ -61,11 +66,13 @@ public abstract class BaseProperties {
      * low priority and handle the result in the background thread
      */
     public static BackgroundServiceRequester bgRequester = null;
+
     /**
      * Single touch reference, this single touch will be applied for components
      * to ensure only one component touched at the same time
      */
     private static SingleTouch singleTouch = null;
+
     /**
      * Single back-press reference, the single back-press ensure only the
      * back-press event only execute once after a short period
