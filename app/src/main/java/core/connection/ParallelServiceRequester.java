@@ -62,11 +62,9 @@ public final class ParallelServiceRequester implements Response.Listener<Paralle
 
     public static void addRequest(ParallelServiceRequest request) {
         if (request != null) {
-            if (currentRequestingConnection >= CONNECTIONS_LIMIT) {
-                queue.add(request);
-            }
-            startRequest(request);
+            queue.add(request);
         }
+        startRequest(request);
     }
 
     public static void registerListener(ParallelServiceListener listener) {

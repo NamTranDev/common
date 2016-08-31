@@ -131,8 +131,6 @@ public class FileRequester implements Response.Listener<FileResponse>, Response.
     }
 
     private void handleQueue() {
-        if (queue != null && queue.size() > 0)
-            queue.remove(0);
         if (currentRequestingConnection > 0) {
             currentRequestingConnection--;
             if (queue.size() > 0) {
