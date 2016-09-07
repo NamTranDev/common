@@ -67,7 +67,7 @@ public class NetworkResponse {
         this.headers = headers;
         this.notModified = notModified;
         this.networkTimeMs = networkTimeMs;
-        this.rawHeaders = new HashMap<>();
+        this.rawHeaders = new HashMap<String, List<String>>();
     }
 
     public NetworkResponse(int statusCode, byte[] data, Map<String, String> headers,

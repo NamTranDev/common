@@ -91,7 +91,7 @@ public interface Cache {
         /**
          * Mutable response raw headers as received from server; must be non-null.
          */
-        public Map<String, List<String>> responseRawHeaders = new HashMap<>();
+        public Map<String, List<String>> responseRawHeaders = new HashMap<String, List<String>>();
 
         /** True if the entry is expired. */
         public boolean isExpired() {

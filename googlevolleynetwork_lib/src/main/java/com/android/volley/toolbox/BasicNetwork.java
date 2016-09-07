@@ -297,7 +297,7 @@ public class BasicNetwork implements Network {
                 values.add(headers[i].getValue());
                 result.put(headers[i].getName(), values);
             } else {
-                List<String> values = new ArrayList<>();
+                List<String> values = new ArrayList<String>();
                 values.add(headers[i].getValue());
                 result.put(headers[i].getName(), values);
             }

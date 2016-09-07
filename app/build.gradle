@@ -10,7 +10,7 @@ final BUILD_TOOL_VERSION = '23.0.3'
 final MIN_SDK_VERSION = '17'
 final TARGET_SDK_VERSION = '23'
 final PLAY_SERVICE_LIB_VERSION = '9.4.0'
-final SUPPORT_LIB_VERSION = '24.1.1'
+final SUPPORT_LIB_VERSION = '24.2.0'
 final BUTTER_KNIFE_LIB_VERSION = '8.0.1'
 final ICE_PICK_LIB_VERSION = '3.2.0'
 final TWITTER_SDK_VERSION = '2.0.0@aar'
@@ -89,30 +89,24 @@ dependencies {
     compile "com.android.support:recyclerview-v7:${SUPPORT_LIB_VERSION}"
 
     /* NETWORK */
-    compile 'commons-net:commons-net:3.3'
     compile('org.apache.httpcomponents:httpmime:4.3.6') {
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
-    compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
 
     /* UTILITIES */
-    compile 'com.google.code.gson:gson:2.4'
-    compile 'org.apache.commons:commons-lang3:3.4'
     compile "com.jakewharton:butterknife:${BUTTER_KNIFE_LIB_VERSION}"
     apt "com.jakewharton:butterknife-compiler:${BUTTER_KNIFE_LIB_VERSION}"
     compile "frankiesardo:icepick:${ICE_PICK_LIB_VERSION}"
     provided "frankiesardo:icepick-processor:${ICE_PICK_LIB_VERSION}"
 
     /* DATABASE */
-    compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT' // use Active Android for native SQLite
+    // use Active Android for native SQLite
     // use Realm for alternative DB operation
 
     /* IMAGE LOADING */
-    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
     // use other libraries if needed
 
     /* ERROR DETECTION */
-    compile 'ch.acra:acra:4.6.2'
 
     /* LEAK DETECTION */
     compile "com.squareup.leakcanary:leakcanary-android:${LEAK_CANARY_LIB_VERSION}"
@@ -125,4 +119,12 @@ dependencies {
         transitive = true;
     }
 
+    compile 'commons-net:commons-net:3.3'
+    compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
+    compile 'com.google.code.gson:gson:2.4'
+    compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
+    compile 'ch.acra:acra:4.6.2'
+    compile 'com.google.android.gms:play-services-gcm:9.4.0'
 }
