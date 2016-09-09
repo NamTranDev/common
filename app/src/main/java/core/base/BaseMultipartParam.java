@@ -126,26 +126,10 @@ public abstract class BaseMultipartParam implements Param {
         return headers;
     }
 
-//    private byte[] createUploadFile(String key, String name, String type, byte[] file) {
-//        ByteArrayOutputStream os = new ByteArrayOutputStream();
-//        try {
-//            String header = String.format(CONTENT, HYPHENS, boundary,
-//                    BREAK_LINE, key, name, BREAK_LINE, type, BREAK_LINE, BREAK_LINE,
-//                    BREAK_LINE);
-//            String footer = String.format("%s%s%s%s%s", BREAK_LINE, HYPHENS,
-//                    boundary, HYPHENS, BREAK_LINE);
-//            os.write(header.getBytes());
-//            os.write(file);
-//            os.write(footer.getBytes());
-//            os.flush();
-//            byte[] result = os.toByteArray();
-//            os.close();
-//            return result;
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return new byte[0];
-//    }
+    @Override
+    public String makeBodyContentType() {
+        return MULTIPART_FORM_DATA;
+    }
 
     private class Text {
         private String content;
