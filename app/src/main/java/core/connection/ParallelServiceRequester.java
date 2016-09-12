@@ -199,7 +199,7 @@ public final class ParallelServiceRequester implements Response.Listener<Paralle
             currentRequestingConnection--;
             if (queue.size() > 0) {
                 startRequest(queue.get(0));
-            } else {
+            } else if (currentRequestingConnection <= 0) {
                 notifyListeners(Notify.FINISH, null, null, null, null, null);
             }
         }
