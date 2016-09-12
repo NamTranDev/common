@@ -199,6 +199,8 @@ public final class ParallelServiceRequester implements Response.Listener<Paralle
             currentRequestingConnection--;
             if (queue.size() > 0) {
                 startRequest(queue.get(0));
+            } else {
+                notifyListeners(Notify.FINISH, null, null, null, null, null);
             }
         }
     }
@@ -215,6 +217,9 @@ public final class ParallelServiceRequester implements Response.Listener<Paralle
                 case FAIL:
                     listener.onFail(target, tag, error, code);
                     break;
+                case FINISH:
+                    listener.onFinish();
+                    break;
             }
         }
     }
@@ -222,7 +227,8 @@ public final class ParallelServiceRequester implements Response.Listener<Paralle
     private enum Notify {
         RESULT_SUCCESS, // notify when a request is returned successfully with status success
         RESULT_FAIL, // notify when a request is returned successfully with status failed
-        FAIL // notify when a request is failed to request
+        FAIL, // notify when a request is failed to request
+        FINISH // notify when all requestes are finished (both failed and successful)
     }
 
     public interface ParallelServiceListener {
@@ -259,5 +265,12 @@ public final class ParallelServiceRequester implements Response.Listener<Paralle
          * @param code   The code indicating the type of failure
          */
         void onFail(RequestTarget target, String tag, String error, Constant.StatusCode code);
+
+        /**
+         * <b>Specified by:</b> onFinish(...) in ParallelServiceListener <br>
+         * <br>
+         * This is called immediately after all requests are finished (both failed and successful)
+         */
+        void onFinish();
     }
 }
