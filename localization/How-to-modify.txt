@@ -1,0 +1,15 @@
+How to update Locale_Tool.jar
+
+Step 1: Download and run JDGUI
+Step 2: Extract jar file
+Step 3: Locate the file to modify (by JDGUI)
+Step 4: Copy file content and create .java file
+Step 5: Update java file (source code)
+Step 6: Compile the java file
+> cd Locale_Tool
+> javac -classpath *:. <modified file>.java
+>> <modified file>.class generated
+Step 7: Copy <modified file>.class generated to right directory 
+Step 8: Update jar file
+> cd Locale_Tool
+> jar uf ../Locale_Tool.jar path/<modified file>.class
