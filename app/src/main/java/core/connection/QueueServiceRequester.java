@@ -123,7 +123,7 @@ public final class QueueServiceRequester implements Listener<QueueResponse>,
     }
 
     public static void registerListener(QueueServiceListener listener) {
-        if (listener != null) {
+        if (listener != null && !listeners.containsKey(listener)) {
             listeners.put(listener, listener);
         }
     }

@@ -86,7 +86,7 @@ public class FileRequester implements Response.Listener<FileResponse>, Response.
     }
 
     public static void registerListener(FileResultHandler listener) {
-        if (listener != null) {
+        if (listener != null && !listeners.containsKey(listener)) {
             listeners.put(listener, listener);
         }
     }

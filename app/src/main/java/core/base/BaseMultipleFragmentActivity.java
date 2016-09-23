@@ -69,11 +69,11 @@ import icepick.State;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
         implements BaseInterface, SingleClickListener {
+
     /**
      * Tag of BaseFragmentActivity class for Log usage
      */
     private static String TAG = BaseMultipleFragmentActivity.class.getSimpleName();
-
     @State
     HashMap<Integer, ArrayList<String>> containers = new HashMap<>();
     /**
@@ -82,7 +82,6 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
      */
     @State
     boolean isFragmentsInitialized = false;
-
     /**
      * The identification of the main fragment container, the default is the
      * first container added. Or it can be set by
@@ -107,12 +106,15 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     /**
      * The single click to handle click action for this screen
      */
-
     private SingleClick singleClick = null;
     /**
      * The unbinder of Butterknife to unbind views when the fragment view is destroyed
      */
     private Unbinder unbinder;
+
+    /*
+     * ABSTRACT METHODS
+     */
 
     /**
      * This method is for initializing fragments used in the activity. This
@@ -149,6 +151,10 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
      */
     protected abstract void onFragmentRemoved(@IdRes int containerId, String... tags);
 
+    /*
+     * ANDROID LIFECYCLE
+     */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // This is to prevent multiple instances on release build (bug from
@@ -174,6 +180,14 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
+    public void setContentView(int layoutResID) {
+        super.setContentView(layoutResID);
+        unbinder = ButterKnife.bind(this);
+        onBindView();
+        onInitializeViewData();
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         Icepick.saveInstanceState(this, outState);
@@ -195,57 +209,6 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
         Utils.logHeap(TAG);
     }
 
-    private void onOutsideActionReceived() {
-        if (getIntent() != null) {
-            if (getIntent().getData() != null
-                    && !Utils.isEmpty(getIntent().getData().getHost())
-                    && (getIntent().getData().getHost()
-                    .equals(getString(R.string.deep_linking_app_host)) || getIntent()
-                    .getData().getHost()
-                    .equals(getString(R.string.deep_linking_http_host)))) {
-                onDeepLinking(new Intent(getIntent()));
-                if (getTopFragment(mainContainerId) != null)
-                    getTopFragment(mainContainerId).onDeepLinking(
-                            new Intent(getIntent()));
-
-                Intent resetDeepLinkIntent = new Intent(getIntent());
-                resetDeepLinkIntent.setData(Uri.EMPTY);
-                setIntent(resetDeepLinkIntent);
-            } else if (getIntent().getExtras() != null
-                    && getIntent().getBooleanExtra(
-                    Constant.NOTIFICATION_DEFINED, false)) {
-
-                int id = getIntent().getIntExtra(Constant.NOTIFICATION_ID, -1);
-                if (id != -1) {
-                    NotificationManager manager = (NotificationManager) getCentralContext()
-                            .getSystemService(Context.NOTIFICATION_SERVICE);
-                    manager.cancel(id);
-                    onNotification(new Intent(getIntent()));
-                    if (getTopFragment(mainContainerId) != null)
-                        getTopFragment(mainContainerId).onNotification(
-                                new Intent(getIntent()));
-                    Intent resetNotificationIntent = new Intent(getIntent());
-                    resetNotificationIntent.putExtra(
-                            Constant.NOTIFICATION_DEFINED, false);
-                    setIntent(resetNotificationIntent);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void setContentView(int layoutResID) {
-        super.setContentView(layoutResID);
-        unbinder = ButterKnife.bind(this);
-        onBindView();
-        onInitializeViewData();
-    }
-
-    @Override
-    public void onBindView() {
-        /* Views are bind by Butterknife, override this for more actions on binding views */
-    }
-
     @Override
     protected void onResumeFragments() {
         super.onResumeFragments();
@@ -253,6 +216,64 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
         if (!isFragmentsInitialized) {
             isFragmentsInitialized = true;
             onInitializeFragments();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        BaseMultipleFragment fragment = getTopFragment(mainContainerId);
+        if (fragment != null)
+            fragment.onActivityResult(requestCode, resultCode, data);
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (BaseProperties.getSingleBackPress().onBackPressAllowed()) {
+            // super.onBackPressed();
+            backStack(mainContainerId, null);
+        }
+    }
+
+    @Override
+    public final boolean dispatchTouchEvent(@NonNull MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            Utils.closeSoftKeyboard(this, findViewById(android.R.id.content)
+                    .getRootView());
+        }
+        return super.dispatchTouchEvent(event);
+    }
+
+    @Override
+    public final boolean onTouchEvent(@NonNull MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            Utils.closeSoftKeyboard(this, findViewById(android.R.id.content)
+                    .getRootView());
+            return true;
+        }
+        return super.onTouchEvent(event);
+    }
+
+    @Override
+    public final void finish() {
+        isFinished = true;
+        super.finish();
+        if (isTaskRoot())
+            ActionTracker.closeActionLog();
+        int enterAnim = getBackInAnimation() == -1 ? Constant.DEFAULT_BACK_ANIMATION[0] : getBackInAnimation();
+        int exitAnim = getBackOutAnimation() == -1 ? Constant.DEFAULT_BACK_ANIMATION[1] : getBackOutAnimation();
+        overridePendingTransition(enterAnim, exitAnim);
+    }
+
+    @Override
+    protected void onPause() {
+        // EventBus.getDefault().unregister(this);
+        cancelWebServiceRequest(null);
+        closeLoadingDialog();
+        super.onPause();
+        if (isFinished) {
+            clearAllStacks();
         }
     }
 
@@ -270,53 +291,33 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
-    public void finish() {
-        isFinished = true;
-        super.finish();
-        if (isTaskRoot())
-            ActionTracker.closeActionLog();
-        int enterAnim = getBackInAnimation() == -1 ? Constant.DEFAULT_BACK_ANIMATION[0] : getBackInAnimation();
-        int exitAnim = getBackOutAnimation() == -1 ? Constant.DEFAULT_BACK_ANIMATION[1] : getBackOutAnimation();
-        overridePendingTransition(enterAnim, exitAnim);
-    }
-
-    @Override
-    protected void onPause() {
-        // EventBus.getDefault().unregister(this);
-        cancelRequest();
-        closeLoadingDialog();
-        super.onPause();
-        if (isFinished) {
-            clearAllStacks();
-        }
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (unbinder != null)
             unbinder.unbind();
     }
 
+    /*
+     * BASE INTERFACE
+     */
+
     @Override
-    public void onBackPressed() {
-        if (BaseProperties.getSingleBackPress().onBackPressAllowed()) {
-            // super.onBackPressed();
-            backStack(mainContainerId, null);
+    public void onBindView() {
+        /* Views are bind by Butterknife, override this for more actions on binding views */
+    }
+
+    @Override
+    public String getResourceString(int id) {
+        try {
+            return getResources().getString(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        BaseMultipleFragment fragment = getTopFragment(mainContainerId);
-        if (fragment != null)
-            fragment.onActivityResult(requestCode, resultCode, data);
-
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public void registerSingleAction(View... views) {
+    public final void registerSingleAction(View... views) {
         for (View view : views)
             if (view != null && !isExceptionalView(view)) {
                 view.setOnClickListener(getSingleClick());
@@ -325,7 +326,7 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
-    public void registerSingleAction(@IdRes int... ids) {
+    public final void registerSingleAction(@IdRes int... ids) {
         for (int id : ids) {
             View view = findViewById(id);
             if (view != null && !isExceptionalView(view)) {
@@ -336,27 +337,13 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean isExceptionalView(View view) {
-        return BaseProperties.isExceptionalView(view);
+    public Activity getActiveActivity() {
+        return BaseApplication.getActiveActivity();
     }
 
     @Override
-    public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            Utils.closeSoftKeyboard(this, findViewById(android.R.id.content)
-                    .getRootView());
-        }
-        return super.dispatchTouchEvent(event);
-    }
-
-    @Override
-    public boolean onTouchEvent(@NonNull MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            Utils.closeSoftKeyboard(this, findViewById(android.R.id.content)
-                    .getRootView());
-            return true;
-        }
-        return super.onTouchEvent(event);
+    public Context getBaseContext() {
+        return BaseApplication.getContext();
     }
 
     @Override
@@ -409,53 +396,20 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
-    public String getResourceString(int id) {
-        try {
-            return getResources().getString(id);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public boolean isExceptionalView(View view) {
+        return BaseProperties.isExceptionalView(view);
     }
 
     @Override
-    public Activity getActiveActivity() {
-        return BaseApplication.getActiveActivity();
-    }
-
-    @Override
-    public Context getCentralContext() {
-        return BaseApplication.getContext();
-    }
-
-    public void cancelRequest() {
-        if (BaseProperties.wsRequester != null)
-            BaseProperties.wsRequester.cancelAll(null);
-        BaseProperties.wsRequester = (null);
-    }
-
-    @Override
-    public void cancelWebServiceRequest(String tag) {
-        if (BaseProperties.wsRequester != null)
-            BaseProperties.wsRequester.cancelAll(tag);
-    }
-
-    @Override
-    public void cancelBackgroundRequest(String tag) {
-        if (BaseProperties.bgRequester != null)
-            BaseProperties.bgRequester.cancelAll(tag);
-    }
-
-    @Override
-    public void makeFileRequest(String tag, String path, String name, String extension,
-                                RequestTarget target, Param content, Pair<String, String>... extras) {
+    public final void makeFileRequest(String tag, String path, String name, String extension,
+                                      RequestTarget target, Param content, Pair<String, String>... extras) {
         if (!Requester.startFileRequest(tag, target, content, path, name, extension, extras))
             DLog.d(TAG, "makeFileRequest failed with " + tag);
     }
 
     @Override
-    public void makeBackgroundRequest(String tag, RequestTarget target,
-                                      Param content, Pair<String, String>... extras) {
+    public final void makeBackgroundRequest(String tag, RequestTarget target,
+                                            Param content, Pair<String, String>... extras) {
         if (!Utils.isNetworkConnectionAvailable()) {
             return;
         }
@@ -464,9 +418,9 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
-    public void makeRequest(String tag, boolean loading, Param content,
-                            WebServiceResultHandler handler, RequestTarget target,
-                            Pair<String, String>... extras) {
+    public final void makeRequest(String tag, boolean loading, Param content,
+                                  WebServiceResultHandler handler, RequestTarget target,
+                                  Pair<String, String>... extras) {
         if (!Utils.isNetworkConnectionAvailable()) {
             closeLoadingDialog();
             showAlertDialog(
@@ -486,25 +440,40 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
-    public void makeQueueRequest(String tag, Type type, Param content,
-                                 RequestTarget target, Pair<String, String>... extras) {
+    public final void makeQueueRequest(String tag, Type type, Param content,
+                                       RequestTarget target, Pair<String, String>... extras) {
         if (!Requester.startQueueRequest(tag, target, type, content, extras))
             DLog.d(TAG, "makeQueueRequest failed with " + tag);
     }
 
     @Override
-    public void makeParallelRequest(String tag, Param content, RequestTarget target, Pair<String, String>... extras) {
+    public final void makeParallelRequest(String tag, Param content, RequestTarget target, Pair<String, String>... extras) {
         if (!Requester.startParallelRequest(tag, target, content, extras))
             DLog.d(TAG, "makeParallelRequest failed with " + tag);
     }
 
     @Override
-    public SingleTouch getSingleTouch() {
+    public final void cancelWebServiceRequest(String tag) {
+        if (BaseProperties.wsRequester != null) {
+            BaseProperties.wsRequester.cancelAll(tag);
+        } else {
+            BaseProperties.wsRequester.cancelAll(null);
+        }
+    }
+
+    @Override
+    public final void cancelBackgroundRequest(String tag) {
+        if (BaseProperties.bgRequester != null)
+            BaseProperties.bgRequester.cancelAll(tag);
+    }
+
+    @Override
+    public final SingleTouch getSingleTouch() {
         return BaseProperties.getSingleTouch();
     }
 
     @Override
-    public SingleClick getSingleClick() {
+    public final SingleClick getSingleClick() {
         if (singleClick == null) {
             singleClick = new SingleClick();
             singleClick.setListener(this);
@@ -512,53 +481,56 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
         return singleClick;
     }
 
+    @LayoutRes
+    @Override
+    public int getLoadingDialogLayoutResource() {
+        return R.layout.loading_dialog;
+    }
+
+    @LayoutRes
+    @Override
+    public int getGeneralDialogLayoutResource() {
+        return R.layout.general_dialog;
+    }
+
+    @AnimRes
+    @Override
+    public int getEnterInAnimation() {
+        return -1;
+    }
+
+    @AnimRes
+    @Override
+    public int getEnterOutAnimation() {
+        return -1;
+    }
+
+    @AnimRes
+    @Override
+    public int getBackInAnimation() {
+        return -1;
+    }
+
+    @AnimRes
+    @Override
+    public int getBackOutAnimation() {
+        return -1;
+    }
+
+    /*
+     * BASE MULTIPLE FRAGMENT
+     */
+
     @IdRes
-    public int getMainContainerId() {
+    public final int getMainContainerId() {
         return this.mainContainerId;
     }
 
-    public void setMainContainerId(@IdRes int mainContainerId) {
+    public final void setMainContainerId(@IdRes int mainContainerId) {
         this.mainContainerId = mainContainerId;
     }
 
-    public BaseMultipleFragment getFragment(@IdRes int containerId, String uniqueTag) {
-        ArrayList<String> tags = containers.get(containerId);
-        if (tags != null && tags.size() > 0) {
-            for (String tag : tags)
-                if (tag.equals(uniqueTag))
-                    return (BaseMultipleFragment) getSupportFragmentManager().findFragmentByTag(uniqueTag);
-        }
-        return null;
-    }
-
-    public BaseMultipleFragment getTopFragment(@IdRes int containerId) {
-        try {
-            ArrayList<String> tags = containers.get(containerId);
-            int size;
-            if (tags != null && (size = tags.size()) > 0)
-                return (BaseMultipleFragment) getSupportFragmentManager().findFragmentByTag(tags.get(size - 1));
-        } catch (Exception e) {
-            // ignore this exception
-        }
-        return null;
-    }
-
-    private void clearStack(@IdRes int containerId) {
-        ArrayList<String> tags = containers.get(containerId);
-        if (tags != null)
-            tags.clear();
-    }
-
-    private void clearAllStacks() {
-        for (int i = 0; i < containers.size(); ++i) {
-            ArrayList<String> stack = containers.get(i);
-            if (stack != null)
-                stack.clear();
-        }
-        containers.clear();
-    }
-
-    public void backStack(@IdRes int containerId, String toTag) {
+    public final void backStack(@IdRes int containerId, String toTag) {
         if (getSupportFragmentManager() != null) {
             ArrayList<String> tags = containers.get(containerId);
             if (tags != null) {
@@ -616,33 +588,7 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * The method is to remove all the child fragments in the parent fragment container
-     * The removing transaction is same as the parent's transaction
-     * BaseFragmentContainer must be use for the fragment container instead of normal FrameLayout
-     */
-
-    private void removeAllChildFragments(View parentFragment, FragmentTransaction transaction) {
-        if (parentFragment != null) {
-            ArrayList<View> subContainers = new ArrayList<>();
-            parentFragment.findViewsWithText(subContainers, BaseFragmentContainer.TAG, View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
-            for (View container : subContainers) {
-                if (container != null && container.getId() != View.NO_ID) {
-                    ArrayList<String> subTags = containers.get(container.getId());
-
-                    if (subTags != null) {
-                        for (String subTag : subTags) {
-                            BaseMultipleFragment subEntry = (BaseMultipleFragment) getSupportFragmentManager().findFragmentByTag(subTag);
-                            transaction.remove(subEntry);
-                        }
-                        subTags.clear();
-                    }
-                }
-            }
-        }
-    }
-
-    protected void popAllBackStack(@IdRes int containerId) {
+    protected final void popAllBackStack(@IdRes int containerId) {
         if (getSupportFragmentManager() != null) {
             try {
                 ArrayList<String> tags = containers
@@ -676,7 +622,33 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
         }
     }
 
-    protected void addMultipleFragments(@IdRes int containerId, BaseMultipleFragment... fragments) {
+    public final BaseMultipleFragment getFragment(@IdRes int containerId, String uniqueTag) {
+        ArrayList<String> tags = containers.get(containerId);
+        if (tags != null && tags.size() > 0) {
+            for (String tag : tags)
+                if (tag.equals(uniqueTag))
+                    return (BaseMultipleFragment) getSupportFragmentManager().findFragmentByTag(uniqueTag);
+        }
+        return null;
+    }
+
+    public final BaseMultipleFragment getTopFragment(@IdRes int containerId) {
+        try {
+            ArrayList<String> tags = containers.get(containerId);
+            int size;
+            if (tags != null && (size = tags.size()) > 0)
+                return (BaseMultipleFragment) getSupportFragmentManager().findFragmentByTag(tags.get(size - 1));
+        } catch (Exception e) {
+            // ignore this exception
+        }
+        return null;
+    }
+
+    protected boolean shouldBackIfFragmentExist() {
+        return shouldBackIfFragmentExist;
+    }
+
+    protected final void addMultipleFragments(@IdRes int containerId, BaseMultipleFragment... fragments) {
         if (getSupportFragmentManager() != null) {
             ArrayList<String> tags = containers.get(containerId);
             ArrayList<String> addingTags = new ArrayList<>();
@@ -732,8 +704,72 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
         }
     }
 
-    protected void addFragment(@IdRes int containerId, BaseMultipleFragment fragment) {
+    protected final void addFragment(@IdRes int containerId, BaseMultipleFragment fragment) {
         addFragment(containerId, fragment, fragment.getUniqueTag());
+    }
+
+    protected final void replaceFragment(@IdRes int containerId,
+                                         BaseMultipleFragment fragment, boolean clearStack) {
+        replaceFragment(containerId, fragment, fragment.getUniqueTag(), clearStack);
+    }
+
+    protected final void removeFragment(@IdRes int containerId, String tag) {
+        ArrayList<String> tags = containers.get(containerId);
+        if (tags != null) {
+            BaseMultipleFragment removed = getTopFragment(containerId);
+            if (removed != null && removed.getTag().equals(tag)) {
+                backStack(containerId, null);
+            } else {
+                for (int i = 0; i < tags.size(); ++i) {
+                    removed = (BaseMultipleFragment) getSupportFragmentManager().findFragmentByTag(tags.get(i));
+                    if (removed.getTag().equals(tag)) {
+                        getSupportFragmentManager().beginTransaction()
+                                .remove(removed).commitNow();
+                        tags.remove(i);
+                        onFragmentRemoved(containerId, tag);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private void onOutsideActionReceived() {
+        if (getIntent() != null) {
+            if (getIntent().getData() != null
+                    && !Utils.isEmpty(getIntent().getData().getHost())
+                    && (getIntent().getData().getHost()
+                    .equals(getString(R.string.deep_linking_app_host)) || getIntent()
+                    .getData().getHost()
+                    .equals(getString(R.string.deep_linking_http_host)))) {
+                onDeepLinking(new Intent(getIntent()));
+                if (getTopFragment(mainContainerId) != null)
+                    getTopFragment(mainContainerId).onDeepLinking(
+                            new Intent(getIntent()));
+
+                Intent resetDeepLinkIntent = new Intent(getIntent());
+                resetDeepLinkIntent.setData(Uri.EMPTY);
+                setIntent(resetDeepLinkIntent);
+            } else if (getIntent().getExtras() != null
+                    && getIntent().getBooleanExtra(
+                    Constant.NOTIFICATION_DEFINED, false)) {
+
+                int id = getIntent().getIntExtra(Constant.NOTIFICATION_ID, -1);
+                if (id != -1) {
+                    NotificationManager manager = (NotificationManager) getBaseContext()
+                            .getSystemService(Context.NOTIFICATION_SERVICE);
+                    manager.cancel(id);
+                    onNotification(new Intent(getIntent()));
+                    if (getTopFragment(mainContainerId) != null)
+                        getTopFragment(mainContainerId).onNotification(
+                                new Intent(getIntent()));
+                    Intent resetNotificationIntent = new Intent(getIntent());
+                    resetNotificationIntent.putExtra(
+                            Constant.NOTIFICATION_DEFINED, false);
+                    setIntent(resetNotificationIntent);
+                }
+            }
+        }
     }
 
     private void addFragment(@IdRes int containerId, BaseMultipleFragment fragment,
@@ -790,12 +826,6 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
         }
     }
 
-    protected void replaceFragment(@IdRes int containerId,
-                                   BaseMultipleFragment fragment, boolean clearStack) {
-        replaceFragment(containerId, fragment, fragment.getUniqueTag(), clearStack);
-    }
-
-
     private void replaceFragment(@IdRes int containerId,
                                  BaseMultipleFragment fragment, String tag, boolean clearStack) {
         if (getSupportFragmentManager() != null) {
@@ -838,25 +868,19 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
         }
     }
 
-    protected void removeFragment(@IdRes int containerId, String tag) {
+    private void clearStack(@IdRes int containerId) {
         ArrayList<String> tags = containers.get(containerId);
-        if (tags != null) {
-            BaseMultipleFragment removed = getTopFragment(containerId);
-            if (removed != null && removed.getTag().equals(tag)) {
-                backStack(containerId, null);
-            } else {
-                for (int i = 0; i < tags.size(); ++i) {
-                    removed = (BaseMultipleFragment) getSupportFragmentManager().findFragmentByTag(tags.get(i));
-                    if (removed.getTag().equals(tag)) {
-                        getSupportFragmentManager().beginTransaction()
-                                .remove(removed).commitNow();
-                        tags.remove(i);
-                        onFragmentRemoved(containerId, tag);
-                        break;
-                    }
-                }
-            }
+        if (tags != null)
+            tags.clear();
+    }
+
+    private void clearAllStacks() {
+        for (int i = 0; i < containers.size(); ++i) {
+            ArrayList<String> stack = containers.get(i);
+            if (stack != null)
+                stack.clear();
         }
+        containers.clear();
     }
 
     private void animateAddOut(BaseMultipleFragment previous) {
@@ -945,45 +969,29 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
         }
     }
 
-    @LayoutRes
-    @Override
-    public int getLoadingDialogLayoutResource() {
-        return R.layout.loading_dialog;
-    }
+    /**
+     * The method is to remove all the child fragments in the parent fragment container
+     * The removing transaction is same as the parent's transaction
+     * BaseFragmentContainer must be use for the fragment container instead of normal FrameLayout
+     */
+    private void removeAllChildFragments(View parentFragment, FragmentTransaction transaction) {
+        if (parentFragment != null) {
+            ArrayList<View> subContainers = new ArrayList<>();
+            parentFragment.findViewsWithText(subContainers, BaseFragmentContainer.TAG, View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
+            for (View container : subContainers) {
+                if (container != null && container.getId() != View.NO_ID) {
+                    ArrayList<String> subTags = containers.get(container.getId());
 
-    @LayoutRes
-    @Override
-    public int getGeneralDialogLayoutResource() {
-        return R.layout.general_dialog;
-    }
-
-
-    protected boolean shouldBackIfFragmentExist() {
-        return shouldBackIfFragmentExist;
-    }
-
-    @AnimRes
-    @Override
-    public int getEnterInAnimation() {
-        return -1;
-    }
-
-    @AnimRes
-    @Override
-    public int getEnterOutAnimation() {
-        return -1;
-    }
-
-    @AnimRes
-    @Override
-    public int getBackInAnimation() {
-        return -1;
-    }
-
-    @AnimRes
-    @Override
-    public int getBackOutAnimation() {
-        return -1;
+                    if (subTags != null) {
+                        for (String subTag : subTags) {
+                            BaseMultipleFragment subEntry = (BaseMultipleFragment) getSupportFragmentManager().findFragmentByTag(subTag);
+                            transaction.remove(subEntry);
+                        }
+                        subTags.clear();
+                    }
+                }
+            }
+        }
     }
 
     private void removeDuplicateFragments(BaseMultipleFragment[] fromFragments, ArrayList<String> toTags, ArrayList<BaseMultipleFragment> toFragments) {
@@ -1029,4 +1037,5 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
         }
         return willAddFragments;
     }
+
 }

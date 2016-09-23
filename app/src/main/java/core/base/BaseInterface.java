@@ -196,7 +196,7 @@ public interface BaseInterface {
      *
      * @return The application context in BaseApplication
      */
-    Context getCentralContext();
+    Context getBaseContext();
 
     /**
      * This method is to retrieve the active activity.
@@ -302,7 +302,6 @@ public interface BaseInterface {
     void makeQueueRequest(String tag, Type type, Param content,
                           RequestTarget target, Pair<String, String>... extras);
 
-
     /**
      * This method is for making multiple connections to server base on the target and
      * parameters defined in request. The requests are added up to a predefined number at
@@ -390,6 +389,11 @@ public interface BaseInterface {
      */
     SingleClick getSingleClick();
 
-
+    /**
+     * This method is to validate view type for setting on single touch and click listener. Any views
+     * listed here are exceptional and will not be registered to single touch and click
+     *
+     * @return true if view should not be registered (ListView, EditText, etc.). Otherwise false
+     */
     boolean isExceptionalView(View view);
 }

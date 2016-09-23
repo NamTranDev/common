@@ -82,6 +82,10 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
      */
     private Unbinder unbinder;
 
+    /*
+     * ANDROID LIFECYCLE
+     */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,6 +114,14 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
+    public void setContentView(int layoutResID) {
+        super.setContentView(layoutResID);
+        unbinder = ButterKnife.bind(this);
+        onBindView();
+        onInitializeViewData();
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         Icepick.saveInstanceState(this, outState);
@@ -129,114 +141,6 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
         super.onResume();
         onOutsideActionReceived();
         Utils.logHeap(TAG);
-    }
-
-    private void onOutsideActionReceived() {
-        if (getIntent() != null) {
-            if (getIntent().getData() != null
-                    && !Utils.isEmpty(getIntent().getData().getHost())
-                    && (getIntent().getData().getHost()
-                    .equals(getString(R.string.deep_linking_app_host)) || getIntent()
-                    .getData().getHost()
-                    .equals(getString(R.string.deep_linking_http_host)))) {
-                onDeepLinking(new Intent(getIntent()));
-                Intent resetDeepLinkIntent = new Intent(getIntent());
-                resetDeepLinkIntent.setData(Uri.EMPTY);
-                setIntent(resetDeepLinkIntent);
-            } else if (getIntent().getExtras() != null
-                    && getIntent().getBooleanExtra(
-                    Constant.NOTIFICATION_DEFINED, false)) {
-                int id = getIntent().getIntExtra(Constant.NOTIFICATION_ID, -1);
-                if (id != -1) {
-                    NotificationManager manager = (NotificationManager) getCentralContext()
-                            .getSystemService(Context.NOTIFICATION_SERVICE);
-                    manager.cancel(id);
-                    onNotification(new Intent(getIntent()));
-                    Intent resetNotificationIntent = new Intent(getIntent());
-                    resetNotificationIntent.putExtra(
-                            Constant.NOTIFICATION_DEFINED, false);
-                    setIntent(resetNotificationIntent);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void setContentView(int layoutResID) {
-        super.setContentView(layoutResID);
-        unbinder = ButterKnife.bind(this);
-        onBindView();
-        onInitializeViewData();
-    }
-
-    @Override
-    public void onBindView() {
-        /* Views are bind by Butterknife, override this for more actions on binding views */
-    }
-
-    @Override
-    protected void onStop() {
-        if (isFinished) {
-            // ConnectivityReceiver.removeListener(this);
-            ActionTracker.exitScreen(getClass().getSimpleName());
-            onBaseFree();
-            Utils.nullViewDrawablesRecursive(findViewById(android.R.id.content)
-                    .getRootView());
-            Utils.unbindDrawables(findViewById(android.R.id.content)
-                    .getRootView());
-        }
-        super.onStop();
-    }
-
-    @Override
-    public void finish() {
-        isFinished = true;
-        super.finish();
-        if (isTaskRoot())
-            ActionTracker.closeActionLog();
-        int enterAnim = getBackInAnimation() == -1 ? Constant.DEFAULT_BACK_ANIMATION[0] : getBackInAnimation();
-        int exitAnim = getBackOutAnimation() == -1 ? Constant.DEFAULT_BACK_ANIMATION[1] : getBackOutAnimation();
-        overridePendingTransition(enterAnim, exitAnim);
-    }
-
-    @Override
-    protected void onPause() {
-        // EventBus.getDefault().unregister(this);
-        cancelRequest();
-        closeLoadingDialog();
-        super.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (unbinder != null)
-            unbinder.unbind();
-    }
-
-    @Override
-    public void registerSingleAction(View... views) {
-        for (View view : views)
-            if (view != null && !isExceptionalView(view)) {
-                view.setOnClickListener(getSingleClick());
-                view.setOnTouchListener(getSingleTouch());
-            }
-    }
-
-    @Override
-    public void registerSingleAction(@IdRes int... ids) {
-        for (int id : ids) {
-            View view = findViewById(id);
-            if (view != null && !isExceptionalView(view)) {
-                view.setOnClickListener(getSingleClick());
-                view.setOnTouchListener(getSingleTouch());
-            }
-        }
-    }
-
-    @Override
-    public boolean isExceptionalView(View view) {
-        return BaseProperties.isExceptionalView(view);
     }
 
     @Override
@@ -263,6 +167,149 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
             return true;
         }
         return super.onTouchEvent(event);
+    }
+
+    @Override
+    public void finish() {
+        isFinished = true;
+        super.finish();
+        if (isTaskRoot())
+            ActionTracker.closeActionLog();
+        int enterAnim = getBackInAnimation() == -1 ? Constant.DEFAULT_BACK_ANIMATION[0] : getBackInAnimation();
+        int exitAnim = getBackOutAnimation() == -1 ? Constant.DEFAULT_BACK_ANIMATION[1] : getBackOutAnimation();
+        overridePendingTransition(enterAnim, exitAnim);
+    }
+
+    @Override
+    protected void onPause() {
+        // EventBus.getDefault().unregister(this);
+        cancelWebServiceRequest(null);
+        closeLoadingDialog();
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        if (isFinished) {
+            // ConnectivityReceiver.removeListener(this);
+            ActionTracker.exitScreen(getClass().getSimpleName());
+            onBaseFree();
+            Utils.nullViewDrawablesRecursive(findViewById(android.R.id.content)
+                    .getRootView());
+            Utils.unbindDrawables(findViewById(android.R.id.content)
+                    .getRootView());
+        }
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (unbinder != null)
+            unbinder.unbind();
+    }
+
+    /*
+     * BASE INTERFACE
+     */
+
+    @Override
+    public void onBindView() {
+        /* Views are bind by Butterknife, override this for more actions on binding views */
+    }
+
+    @Override
+    public String getResourceString(int id) {
+        try {
+            return getResources().getString(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public void registerSingleAction(View... views) {
+        for (View view : views)
+            if (view != null && !isExceptionalView(view)) {
+                view.setOnClickListener(getSingleClick());
+                view.setOnTouchListener(getSingleTouch());
+            }
+    }
+
+    @Override
+    public void registerSingleAction(@IdRes int... ids) {
+        for (int id : ids) {
+            View view = findViewById(id);
+            if (view != null && !isExceptionalView(view)) {
+                view.setOnClickListener(getSingleClick());
+                view.setOnTouchListener(getSingleTouch());
+            }
+        }
+    }
+
+    @Override
+    public Activity getActiveActivity() {
+        return BaseApplication.getActiveActivity();
+    }
+
+    @Override
+    public Context getBaseContext() {
+        return BaseApplication.getContext();
+    }
+
+    @Override
+    public void showDecisionDialog(Context context, int id, @LayoutRes int layout, @DrawableRes int icon,
+                                   String title, String message, String yes, String no, String cancel,
+                                   Object onWhat, DecisionListener listener) {
+        if (BaseProperties.decisionDialog != null)
+            BaseProperties.decisionDialog.dismiss();
+        BaseProperties.decisionDialog = null;
+        if (BaseProperties.decisionDialog == null)
+            BaseProperties.decisionDialog = new GeneralDialog(context, id, layout,
+                    icon, title, message, yes, no, cancel, listener, onWhat);
+
+        if (BaseProperties.decisionDialog != null)
+            BaseProperties.decisionDialog.show();
+    }
+
+    @Override
+    public void showAlertDialog(Context context, int id, int layout, int icon,
+                                String title, String message, String confirm,
+                                Object onWhat, ConfirmListener listener) {
+        if (BaseProperties.alertDialog != null)
+            BaseProperties.alertDialog.dismiss();
+        BaseProperties.alertDialog = null;
+        if (BaseProperties.alertDialog == null)
+            BaseProperties.alertDialog = new GeneralDialog(context, id, layout, icon,
+                    title, message, confirm, listener, onWhat);
+
+        if (BaseProperties.alertDialog != null)
+            BaseProperties.alertDialog.show();
+    }
+
+    @Override
+    public void showLoadingDialog(Context context, int layout, String loading) {
+        if (BaseProperties.loadingDialog != null)
+            BaseProperties.loadingDialog.dismiss();
+        BaseProperties.loadingDialog = null;
+        if (BaseProperties.loadingDialog == null)
+            BaseProperties.loadingDialog = new LoadingDialog(context, layout, loading);
+
+        if (BaseProperties.loadingDialog != null)
+            BaseProperties.loadingDialog.show();
+    }
+
+    @Override
+    public void closeLoadingDialog() {
+        if (BaseProperties.loadingDialog != null)
+            if (BaseProperties.loadingDialog.isShowing())
+                BaseProperties.loadingDialog.dismiss();
+    }
+
+    @Override
+    public boolean isExceptionalView(View view) {
+        return BaseProperties.isExceptionalView(view);
     }
 
     @Override
@@ -318,12 +365,18 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public SingleClick getSingleClick() {
-        if (singleClick == null) {
-            singleClick = new SingleClick();
-            singleClick.setListener(this);
+    public void cancelWebServiceRequest(String tag) {
+        if (BaseProperties.wsRequester != null) {
+            BaseProperties.wsRequester.cancelAll(tag);
+        } else {
+            BaseProperties.wsRequester.cancelAll(null);
         }
-        return singleClick;
+    }
+
+    @Override
+    public void cancelBackgroundRequest(String tag) {
+        if (BaseProperties.bgRequester != null)
+            BaseProperties.bgRequester.cancelAll(tag);
     }
 
     @Override
@@ -332,90 +385,12 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public void showDecisionDialog(Context context, int id, @LayoutRes int layout, @DrawableRes int icon,
-                                   String title, String message, String yes, String no, String cancel,
-                                   Object onWhat, DecisionListener listener) {
-        if (BaseProperties.decisionDialog != null)
-            BaseProperties.decisionDialog.dismiss();
-        BaseProperties.decisionDialog = null;
-        if (BaseProperties.decisionDialog == null)
-            BaseProperties.decisionDialog = new GeneralDialog(context, id, layout,
-                    icon, title, message, yes, no, cancel, listener, onWhat);
-
-        if (BaseProperties.decisionDialog != null)
-            BaseProperties.decisionDialog.show();
-    }
-
-    @Override
-    public void showAlertDialog(Context context, int id, int layout, int icon,
-                                String title, String message, String confirm,
-                                Object onWhat, ConfirmListener listener) {
-        if (BaseProperties.alertDialog != null)
-            BaseProperties.alertDialog.dismiss();
-        BaseProperties.alertDialog = null;
-        if (BaseProperties.alertDialog == null)
-            BaseProperties.alertDialog = new GeneralDialog(context, id, layout, icon,
-                    title, message, confirm, listener, onWhat);
-
-        if (BaseProperties.alertDialog != null)
-            BaseProperties.alertDialog.show();
-    }
-
-    @Override
-    public void showLoadingDialog(Context context, int layout, String loading) {
-        if (BaseProperties.loadingDialog != null)
-            BaseProperties.loadingDialog.dismiss();
-        BaseProperties.loadingDialog = null;
-        if (BaseProperties.loadingDialog == null)
-            BaseProperties.loadingDialog = new LoadingDialog(context, layout, loading);
-
-        if (BaseProperties.loadingDialog != null)
-            BaseProperties.loadingDialog.show();
-    }
-
-    @Override
-    public void closeLoadingDialog() {
-        if (BaseProperties.loadingDialog != null)
-            if (BaseProperties.loadingDialog.isShowing())
-                BaseProperties.loadingDialog.dismiss();
-    }
-
-    @Override
-    public String getResourceString(int id) {
-        try {
-            return getResources().getString(id);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+    public SingleClick getSingleClick() {
+        if (singleClick == null) {
+            singleClick = new SingleClick();
+            singleClick.setListener(this);
         }
-    }
-
-    @Override
-    public Activity getActiveActivity() {
-        return BaseApplication.getActiveActivity();
-    }
-
-    @Override
-    public Context getCentralContext() {
-        return BaseApplication.getContext();
-    }
-
-    private void cancelRequest() {
-        if (BaseProperties.wsRequester != null)
-            BaseProperties.wsRequester.cancelAll(null);
-        BaseProperties.wsRequester = null;
-    }
-
-    @Override
-    public void cancelWebServiceRequest(String tag) {
-        if (BaseProperties.wsRequester != null)
-            BaseProperties.wsRequester.cancelAll(tag);
-    }
-
-    @Override
-    public void cancelBackgroundRequest(String tag) {
-        if (BaseProperties.bgRequester != null)
-            BaseProperties.bgRequester.cancelAll(tag);
+        return singleClick;
     }
 
     @LayoutRes
@@ -452,5 +427,39 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     @Override
     public int getBackOutAnimation() {
         return -1;
+    }
+
+    /*
+     * BASE ACTIVITY
+     */
+
+    private void onOutsideActionReceived() {
+        if (getIntent() != null) {
+            if (getIntent().getData() != null
+                    && !Utils.isEmpty(getIntent().getData().getHost())
+                    && (getIntent().getData().getHost()
+                    .equals(getString(R.string.deep_linking_app_host)) || getIntent()
+                    .getData().getHost()
+                    .equals(getString(R.string.deep_linking_http_host)))) {
+                onDeepLinking(new Intent(getIntent()));
+                Intent resetDeepLinkIntent = new Intent(getIntent());
+                resetDeepLinkIntent.setData(Uri.EMPTY);
+                setIntent(resetDeepLinkIntent);
+            } else if (getIntent().getExtras() != null
+                    && getIntent().getBooleanExtra(
+                    Constant.NOTIFICATION_DEFINED, false)) {
+                int id = getIntent().getIntExtra(Constant.NOTIFICATION_ID, -1);
+                if (id != -1) {
+                    NotificationManager manager = (NotificationManager) getBaseContext()
+                            .getSystemService(Context.NOTIFICATION_SERVICE);
+                    manager.cancel(id);
+                    onNotification(new Intent(getIntent()));
+                    Intent resetNotificationIntent = new Intent(getIntent());
+                    resetNotificationIntent.putExtra(
+                            Constant.NOTIFICATION_DEFINED, false);
+                    setIntent(resetNotificationIntent);
+                }
+            }
+        }
     }
 }

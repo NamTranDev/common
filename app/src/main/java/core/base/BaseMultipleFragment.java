@@ -55,6 +55,10 @@ public abstract class BaseMultipleFragment extends Fragment implements
      */
     private Unbinder unbinder;
 
+    /*
+     * ANDROID LIFECYCLE
+     */
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,9 +66,12 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public void onBindView() {
-        unbinder = ButterKnife.bind(this, getView());
-        /* Views are bind by Butterknife, override this for more actions on binding views */
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (view != null)
+            view.setClickable(true);
+        onBindView();
+        onInitializeViewData();
     }
 
     @Override
@@ -72,6 +79,18 @@ public abstract class BaseMultipleFragment extends Fragment implements
         super.onAttach(activity);
         if (activity instanceof BaseMultipleFragmentActivity) {
             activeActivity = (BaseMultipleFragmentActivity) activity;
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (isAllAttachedToActivityLifeCycle) {
+            // EventBus.getDefault().register(this);
+            ActionTracker.enterScreen(getTag(), ActionTracker.Screen.FRAGMENT);
+            onBaseResume();
+        } else {
+            resumeCurrentFragment();
         }
     }
 
@@ -86,30 +105,76 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public SingleClick getSingleClick() {
-        if (singleClick == null) {
-            singleClick = new SingleClick();
-            singleClick.setListener(this);
+    public void startActivityForResult(Intent intent, int requestCode, @Nullable Bundle options) {
+        if (getActivity() != null
+                && getActivity() instanceof BaseMultipleFragmentActivity) {
+            getActivity().startActivityForResult(intent, requestCode, options);
+        } else if (getActiveActivity() != null
+                && getActiveActivity() instanceof BaseMultipleFragmentActivity) {
+            getActiveActivity().startActivityForResult(intent, requestCode, options);
+        } else if (activeActivity != null) {
+            activeActivity.startActivityForResult(intent, requestCode, options);
         }
-        return singleClick;
     }
 
     @Override
-    public SingleTouch getSingleTouch() {
+    public void onPause() {
+        super.onPause();
+        if (isAllAttachedToActivityLifeCycle) {
+            onBasePause();
+        } else {
+            pauseCurrentFragment();
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        onBaseFree();
+        Utils.nullViewDrawablesRecursive(getView());
+        Utils.unbindDrawables(getView());
+        super.onDetach();
+        activeActivity = null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (unbinder != null)
+            unbinder.unbind();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+//        BaseApplication.getRefWatcher().watch(this);
+    }
+
+    /*
+     * BASE INTERFACE
+     */
+
+    @Override
+    public void onBindView() {
+        unbinder = ButterKnife.bind(this, getView());
+        /* Views are bind by Butterknife, override this for more actions on binding views */
+    }
+
+    @Override
+    public String getResourceString(int id) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             return ((BaseMultipleFragmentActivity) getActivity())
-                    .getSingleTouch();
+                    .getResourceString(id);
         else if (getActiveActivity() != null
                 && getActiveActivity() instanceof BaseMultipleFragmentActivity)
             return ((BaseMultipleFragmentActivity) getActiveActivity())
-                    .getSingleTouch();
+                    .getResourceString(id);
         else
-            return activeActivity.getSingleTouch();
+            return activeActivity.getResourceString(id);
     }
 
     @Override
-    public void registerSingleAction(View... views) {
+    public final void registerSingleAction(View... views) {
         for (View view : views) {
             if (view != null) {
                 if (!isExceptionalView(view)) {
@@ -121,7 +186,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public void registerSingleAction(@IdRes int... ids) {
+    public final void registerSingleAction(@IdRes int... ids) {
         for (int id : ids) {
             View view = findViewById(id);
             if (view != null && !isExceptionalView(view)) {
@@ -129,6 +194,16 @@ public abstract class BaseMultipleFragment extends Fragment implements
                 view.setOnTouchListener(getSingleTouch());
             }
         }
+    }
+
+    @Override
+    public Activity getActiveActivity() {
+        return BaseApplication.getActiveActivity();
+    }
+
+    @Override
+    public Context getBaseContext() {
+        return BaseApplication.getContext();
     }
 
     @Override
@@ -196,31 +271,8 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public void cancelBackgroundRequest(String tag) {
-        if (getActivity() != null
-                && getActivity() instanceof BaseMultipleFragmentActivity)
-            ((BaseMultipleFragmentActivity) getActivity())
-                    .cancelBackgroundRequest(tag);
-        else if (getActiveActivity() != null
-                && getActiveActivity() instanceof BaseMultipleFragmentActivity)
-            ((BaseMultipleFragmentActivity) getActiveActivity())
-                    .cancelBackgroundRequest(tag);
-        else
-            activeActivity.cancelBackgroundRequest(tag);
-    }
-
-    @Override
-    public void cancelWebServiceRequest(String tag) {
-        if (getActivity() != null
-                && getActivity() instanceof BaseMultipleFragmentActivity)
-            ((BaseMultipleFragmentActivity) getActivity())
-                    .cancelWebServiceRequest(tag);
-        else if (getActiveActivity() != null
-                && getActiveActivity() instanceof BaseMultipleFragmentActivity)
-            ((BaseMultipleFragmentActivity) getActiveActivity())
-                    .cancelWebServiceRequest(tag);
-        else
-            activeActivity.cancelWebServiceRequest(tag);
+    public boolean isExceptionalView(View view) {
+        return BaseProperties.isExceptionalView(view);
     }
 
     @Override
@@ -296,66 +348,117 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public String getResourceString(int id) {
+    public void cancelWebServiceRequest(String tag) {
+        if (getActivity() != null
+                && getActivity() instanceof BaseMultipleFragmentActivity)
+            ((BaseMultipleFragmentActivity) getActivity())
+                    .cancelWebServiceRequest(tag);
+        else if (getActiveActivity() != null
+                && getActiveActivity() instanceof BaseMultipleFragmentActivity)
+            ((BaseMultipleFragmentActivity) getActiveActivity())
+                    .cancelWebServiceRequest(tag);
+        else
+            activeActivity.cancelWebServiceRequest(tag);
+    }
+
+    @Override
+    public void cancelBackgroundRequest(String tag) {
+        if (getActivity() != null
+                && getActivity() instanceof BaseMultipleFragmentActivity)
+            ((BaseMultipleFragmentActivity) getActivity())
+                    .cancelBackgroundRequest(tag);
+        else if (getActiveActivity() != null
+                && getActiveActivity() instanceof BaseMultipleFragmentActivity)
+            ((BaseMultipleFragmentActivity) getActiveActivity())
+                    .cancelBackgroundRequest(tag);
+        else
+            activeActivity.cancelBackgroundRequest(tag);
+    }
+
+    @Override
+    public final SingleClick getSingleClick() {
+        if (singleClick == null) {
+            singleClick = new SingleClick();
+            singleClick.setListener(this);
+        }
+        return singleClick;
+    }
+
+    @Override
+    public final SingleTouch getSingleTouch() {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             return ((BaseMultipleFragmentActivity) getActivity())
-                    .getResourceString(id);
+                    .getSingleTouch();
         else if (getActiveActivity() != null
                 && getActiveActivity() instanceof BaseMultipleFragmentActivity)
             return ((BaseMultipleFragmentActivity) getActiveActivity())
-                    .getResourceString(id);
+                    .getSingleTouch();
         else
-            return activeActivity.getResourceString(id);
+            return activeActivity.getSingleTouch();
     }
 
+    @LayoutRes
     @Override
-    public Activity getActiveActivity() {
-        return BaseApplication.getActiveActivity();
+    public int getGeneralDialogLayoutResource() {
+        int layout;
+        if (getActivity() != null
+                && getActivity() instanceof BaseMultipleFragmentActivity)
+            layout = ((BaseMultipleFragmentActivity) getActivity()).getGeneralDialogLayoutResource();
+        else if (getActiveActivity() != null
+                && getActiveActivity() instanceof BaseMultipleFragmentActivity)
+            layout = ((BaseMultipleFragmentActivity) getActiveActivity()).getGeneralDialogLayoutResource();
+        else
+            layout = activeActivity.getGeneralDialogLayoutResource();
+
+        return layout;
     }
 
+    @LayoutRes
     @Override
-    public Context getCentralContext() {
-        return BaseApplication.getContext();
+    public int getLoadingDialogLayoutResource() {
+        int layout;
+        if (getActivity() != null
+                && getActivity() instanceof BaseMultipleFragmentActivity)
+            layout = ((BaseMultipleFragmentActivity) getActivity()).getLoadingDialogLayoutResource();
+        else if (getActiveActivity() != null
+                && getActiveActivity() instanceof BaseMultipleFragmentActivity)
+            layout = ((BaseMultipleFragmentActivity) getActiveActivity()).getLoadingDialogLayoutResource();
+        else
+            layout = activeActivity.getLoadingDialogLayoutResource();
+
+        return layout;
     }
 
+    @AnimRes
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        if (view != null)
-            view.setClickable(true);
-        onBindView();
-        onInitializeViewData();
+    public int getEnterInAnimation() {
+        return -1;
     }
 
+    @AnimRes
     @Override
-    public void onPause() {
-        super.onPause();
-        if (isAllAttachedToActivityLifeCycle) {
-            onBasePause();
-        } else {
-            pauseCurrentFragment();
-        }
+    public int getBackInAnimation() {
+        return -1;
     }
 
-    protected void onBasePause() {
-        // EventBus.getDefault().unregister(this);
-        cancelRequest();
-        closeLoadingDialog();
-    }
-
+    @AnimRes
     @Override
-    public void onResume() {
-        super.onResume();
-        if (isAllAttachedToActivityLifeCycle) {
-            // EventBus.getDefault().register(this);
-            ActionTracker.enterScreen(getTag(), ActionTracker.Screen.FRAGMENT);
-            onBaseResume();
-        } else {
-            resumeCurrentFragment();
-        }
+    public int getEnterOutAnimation() {
+        return -1;
     }
 
+    @AnimRes
+    @Override
+    public int getBackOutAnimation() {
+        return -1;
+    }
+
+    /*
+     * BASE MULTIPLE FRAGMENT
+     */
+
+    @IdRes
     public int getMainContainerId() {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
@@ -367,6 +470,82 @@ public abstract class BaseMultipleFragment extends Fragment implements
                     .getMainContainerId();
         else
             return activeActivity.getMainContainerId();
+    }
+
+    public String getUniqueTag() {
+        return getClass().getSimpleName();
+    }
+
+    protected void onBasePause() {
+        // EventBus.getDefault().unregister(this);
+        cancelWebServiceRequest(null);
+        closeLoadingDialog();
+    }
+
+    protected View findViewById(@IdRes int id) {
+        if (getView() != null) {
+            return getView().findViewById(id);
+        }
+        return null;
+    }
+
+    protected void finish() {
+        if (getView() != null && getView().getParent() != null) {
+            int containerId = ((ViewGroup) getView().getParent()).getId();
+            if (containerId != View.NO_ID && containerId >= 0) {
+                if (getActivity() != null
+                        && getActivity() instanceof BaseMultipleFragmentActivity)
+                    ((BaseMultipleFragmentActivity) getActivity()).backStack(
+                            containerId, null);
+                else if (getActiveActivity() != null
+                        && getActiveActivity() instanceof BaseMultipleFragmentActivity)
+                    ((BaseMultipleFragmentActivity) getActiveActivity()).backStack(
+                            containerId, null);
+                else
+                    activeActivity.backStack(containerId, null);
+            }
+        }
+    }
+
+    protected void addMultipleFragments(@IdRes int containerId, BaseMultipleFragment... fragments) {
+        if (getActivity() != null
+                && getActivity() instanceof BaseMultipleFragmentActivity)
+            ((BaseMultipleFragmentActivity) getActivity()).addMultipleFragments(
+                    containerId, fragments);
+        else if (getActiveActivity() != null
+                && getActiveActivity() instanceof BaseMultipleFragmentActivity)
+            ((BaseMultipleFragmentActivity) getActiveActivity()).addMultipleFragments(
+                    containerId, fragments);
+        else
+            activeActivity.addMultipleFragments(containerId, fragments);
+    }
+
+    protected void addFragment(@IdRes int containerId, BaseMultipleFragment fragment) {
+        if (getActivity() != null
+                && getActivity() instanceof BaseMultipleFragmentActivity)
+            ((BaseMultipleFragmentActivity) getActivity()).addFragment(
+                    containerId, fragment);
+        else if (getActiveActivity() != null
+                && getActiveActivity() instanceof BaseMultipleFragmentActivity)
+            ((BaseMultipleFragmentActivity) getActiveActivity()).addFragment(
+                    containerId, fragment);
+        else
+            activeActivity.addFragment(containerId, fragment);
+    }
+
+    protected void replaceFragment(@IdRes int containerId,
+                                   BaseMultipleFragment fragment, boolean clearStack) {
+        if (getActivity() != null
+                && getActivity() instanceof BaseMultipleFragmentActivity)
+            ((BaseMultipleFragmentActivity) getActivity()).replaceFragment(
+                    containerId, fragment, clearStack);
+        else if (getActiveActivity() != null
+                && getActiveActivity() instanceof BaseMultipleFragmentActivity)
+            ((BaseMultipleFragmentActivity) getActiveActivity())
+                    .replaceFragment(containerId, fragment, clearStack);
+        else
+            activeActivity.replaceFragment(containerId, fragment,
+                    clearStack);
     }
 
     private void pauseCurrentFragment() {
@@ -433,181 +612,5 @@ public abstract class BaseMultipleFragment extends Fragment implements
                 }
             }
         }
-    }
-
-    private void cancelRequest() {
-        if (getActivity() != null)
-            ((BaseMultipleFragmentActivity) getActivity()).cancelRequest();
-        else if (getActiveActivity() != null)
-            ((BaseMultipleFragmentActivity) getActiveActivity())
-                    .cancelRequest();
-        else
-            activeActivity.cancelRequest();
-    }
-
-    @Override
-    public void onDetach() {
-        onBaseFree();
-        Utils.nullViewDrawablesRecursive(getView());
-        Utils.unbindDrawables(getView());
-        super.onDetach();
-        activeActivity = null;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (unbinder != null)
-            unbinder.unbind();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-//        BaseApplication.getRefWatcher().watch(this);
-    }
-
-    @Override
-    public void startActivityForResult(Intent intent, int requestCode, @Nullable Bundle options) {
-        if (getActivity() != null
-                && getActivity() instanceof BaseMultipleFragmentActivity) {
-            getActivity().startActivityForResult(intent, requestCode, options);
-        } else if (getActiveActivity() != null
-                && getActiveActivity() instanceof BaseMultipleFragmentActivity) {
-            getActiveActivity().startActivityForResult(intent, requestCode, options);
-        } else if (activeActivity != null) {
-            activeActivity.startActivityForResult(intent, requestCode, options);
-        }
-    }
-
-    protected View findViewById(int id) {
-        if (getView() != null) {
-            return getView().findViewById(id);
-        }
-        return null;
-    }
-
-    @Override
-    public boolean isExceptionalView(View view) {
-        return BaseProperties.isExceptionalView(view);
-    }
-
-    protected void finish() {
-        if (getView() != null && getView().getParent() != null) {
-            int containerId = ((ViewGroup) getView().getParent()).getId();
-            if (containerId != View.NO_ID && containerId >= 0) {
-                if (getActivity() != null
-                        && getActivity() instanceof BaseMultipleFragmentActivity)
-                    ((BaseMultipleFragmentActivity) getActivity()).backStack(
-                            containerId, null);
-                else if (getActiveActivity() != null
-                        && getActiveActivity() instanceof BaseMultipleFragmentActivity)
-                    ((BaseMultipleFragmentActivity) getActiveActivity()).backStack(
-                            containerId, null);
-                else
-                    activeActivity.backStack(containerId, null);
-            }
-        }
-    }
-
-    protected void addMultipleFragments(@IdRes int containerId, BaseMultipleFragment... fragments) {
-        if (getActivity() != null
-                && getActivity() instanceof BaseMultipleFragmentActivity)
-            ((BaseMultipleFragmentActivity) getActivity()).addMultipleFragments(
-                    containerId, fragments);
-        else if (getActiveActivity() != null
-                && getActiveActivity() instanceof BaseMultipleFragmentActivity)
-            ((BaseMultipleFragmentActivity) getActiveActivity()).addMultipleFragments(
-                    containerId, fragments);
-        else
-            activeActivity.addMultipleFragments(containerId, fragments);
-    }
-
-    protected void addFragment(int containerId, BaseMultipleFragment fragment) {
-        if (getActivity() != null
-                && getActivity() instanceof BaseMultipleFragmentActivity)
-            ((BaseMultipleFragmentActivity) getActivity()).addFragment(
-                    containerId, fragment);
-        else if (getActiveActivity() != null
-                && getActiveActivity() instanceof BaseMultipleFragmentActivity)
-            ((BaseMultipleFragmentActivity) getActiveActivity()).addFragment(
-                    containerId, fragment);
-        else
-            activeActivity.addFragment(containerId, fragment);
-    }
-
-    public String getUniqueTag() {
-        return getClass().getSimpleName();
-    }
-
-    protected void replaceFragment(@IdRes int containerId,
-                                   BaseMultipleFragment fragment, boolean clearStack) {
-        if (getActivity() != null
-                && getActivity() instanceof BaseMultipleFragmentActivity)
-            ((BaseMultipleFragmentActivity) getActivity()).replaceFragment(
-                    containerId, fragment, clearStack);
-        else if (getActiveActivity() != null
-                && getActiveActivity() instanceof BaseMultipleFragmentActivity)
-            ((BaseMultipleFragmentActivity) getActiveActivity())
-                    .replaceFragment(containerId, fragment, clearStack);
-        else
-            activeActivity.replaceFragment(containerId, fragment,
-                    clearStack);
-    }
-
-    @AnimRes
-    @Override
-    public int getEnterInAnimation() {
-        return -1;
-    }
-
-    @AnimRes
-    @Override
-    public int getBackInAnimation() {
-        return -1;
-    }
-
-    @AnimRes
-    @Override
-    public int getEnterOutAnimation() {
-        return -1;
-    }
-
-    @AnimRes
-    @Override
-    public int getBackOutAnimation() {
-        return -1;
-    }
-
-    @LayoutRes
-    @Override
-    public int getGeneralDialogLayoutResource() {
-        int layout;
-        if (getActivity() != null
-                && getActivity() instanceof BaseMultipleFragmentActivity)
-            layout = ((BaseMultipleFragmentActivity) getActivity()).getGeneralDialogLayoutResource();
-        else if (getActiveActivity() != null
-                && getActiveActivity() instanceof BaseMultipleFragmentActivity)
-            layout = ((BaseMultipleFragmentActivity) getActiveActivity()).getGeneralDialogLayoutResource();
-        else
-            layout = activeActivity.getGeneralDialogLayoutResource();
-
-        return layout;
-    }
-
-    @LayoutRes
-    @Override
-    public int getLoadingDialogLayoutResource() {
-        int layout;
-        if (getActivity() != null
-                && getActivity() instanceof BaseMultipleFragmentActivity)
-            layout = ((BaseMultipleFragmentActivity) getActivity()).getLoadingDialogLayoutResource();
-        else if (getActiveActivity() != null
-                && getActiveActivity() instanceof BaseMultipleFragmentActivity)
-            layout = ((BaseMultipleFragmentActivity) getActiveActivity()).getLoadingDialogLayoutResource();
-        else
-            layout = activeActivity.getLoadingDialogLayoutResource();
-
-        return layout;
     }
 }

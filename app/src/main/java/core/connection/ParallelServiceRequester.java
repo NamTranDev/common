@@ -68,7 +68,7 @@ public final class ParallelServiceRequester implements Response.Listener<Paralle
     }
 
     public static void registerListener(ParallelServiceListener listener) {
-        if (listener != null) {
+        if (listener != null && !listeners.containsKey(listener)) {
             listeners.put(listener, listener);
         }
     }
