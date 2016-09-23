@@ -197,19 +197,19 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public Activity getActiveActivity() {
+    public final Activity getActiveActivity() {
         return BaseApplication.getActiveActivity();
     }
 
     @Override
-    public Context getBaseContext() {
+    public final Context getBaseContext() {
         return BaseApplication.getContext();
     }
 
     @Override
-    public void showAlertDialog(Context context, int id, @LayoutRes int layout, @DrawableRes int icon,
-                                String title, String message, String confirm,
-                                Object onWhat, ConfirmListener listener) {
+    public final void showAlertDialog(Context context, int id, @LayoutRes int layout, @DrawableRes int icon,
+                                      String title, String message, String confirm,
+                                      Object onWhat, ConfirmListener listener) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity()).showAlertDialog(
@@ -225,7 +225,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public void showLoadingDialog(Context context, @LayoutRes int layout, String loading) {
+    public final void showLoadingDialog(Context context, @LayoutRes int layout, String loading) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity())
@@ -239,9 +239,9 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public void showDecisionDialog(Context context, int id, @LayoutRes int layout, @DrawableRes int icon,
-                                   String title, String message, String yes, String no, String cancel,
-                                   Object onWhat, DecisionListener listener) {
+    public final void showDecisionDialog(Context context, int id, @LayoutRes int layout, @DrawableRes int icon,
+                                         String title, String message, String yes, String no, String cancel,
+                                         Object onWhat, DecisionListener listener) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity()).showDecisionDialog(
@@ -258,7 +258,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public void closeLoadingDialog() {
+    public final void closeLoadingDialog() {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity()).closeLoadingDialog();
@@ -276,8 +276,8 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public void makeFileRequest(String tag, String path, String name, String extension,
-                                RequestTarget target, Param content, Pair<String, String>... extras) {
+    public final void makeFileRequest(String tag, String path, String name, String extension,
+                                      RequestTarget target, Param content, Pair<String, String>... extras) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity())
@@ -291,8 +291,8 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public void makeBackgroundRequest(String tag, RequestTarget target,
-                                      Param content, Pair<String, String>... extras) {
+    public final void makeBackgroundRequest(String tag, RequestTarget target,
+                                            Param content, Pair<String, String>... extras) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity())
@@ -306,9 +306,9 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public void makeRequest(String tag, boolean loading, Param content,
-                            WebServiceResultHandler handler, RequestTarget target,
-                            Pair<String, String>... extras) {
+    public final void makeRequest(String tag, boolean loading, Param content,
+                                  WebServiceResultHandler handler, RequestTarget target,
+                                  Pair<String, String>... extras) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity()).makeRequest(tag,
@@ -323,8 +323,8 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public void makeQueueRequest(String tag, QueueElement.Type type, Param content,
-                                 RequestTarget target, Pair<String, String>... extras) {
+    public final void makeQueueRequest(String tag, QueueElement.Type type, Param content,
+                                       RequestTarget target, Pair<String, String>... extras) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity()).makeQueueRequest(tag, type, content, target, extras);
@@ -336,7 +336,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public void makeParallelRequest(String tag, Param content, RequestTarget target, Pair<String, String>... extras) {
+    public final void makeParallelRequest(String tag, Param content, RequestTarget target, Pair<String, String>... extras) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity()).makeParallelRequest(tag, content, target, extras);
@@ -348,7 +348,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public void cancelWebServiceRequest(String tag) {
+    public final void cancelWebServiceRequest(String tag) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity())
@@ -362,7 +362,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public void cancelBackgroundRequest(String tag) {
+    public final void cancelBackgroundRequest(String tag) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity())
@@ -459,7 +459,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
      */
 
     @IdRes
-    public int getMainContainerId() {
+    public final int getMainContainerId() {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             return ((BaseMultipleFragmentActivity) getActivity())
@@ -482,14 +482,14 @@ public abstract class BaseMultipleFragment extends Fragment implements
         closeLoadingDialog();
     }
 
-    protected View findViewById(@IdRes int id) {
+    protected final View findViewById(@IdRes int id) {
         if (getView() != null) {
             return getView().findViewById(id);
         }
         return null;
     }
 
-    protected void finish() {
+    protected final void finish() {
         if (getView() != null && getView().getParent() != null) {
             int containerId = ((ViewGroup) getView().getParent()).getId();
             if (containerId != View.NO_ID && containerId >= 0) {
@@ -507,7 +507,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
         }
     }
 
-    protected void addMultipleFragments(@IdRes int containerId, BaseMultipleFragment... fragments) {
+    protected final void addMultipleFragments(@IdRes int containerId, BaseMultipleFragment... fragments) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity()).addMultipleFragments(
@@ -520,7 +520,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
             activeActivity.addMultipleFragments(containerId, fragments);
     }
 
-    protected void addFragment(@IdRes int containerId, BaseMultipleFragment fragment) {
+    protected final void addFragment(@IdRes int containerId, BaseMultipleFragment fragment) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity()).addFragment(
@@ -533,8 +533,8 @@ public abstract class BaseMultipleFragment extends Fragment implements
             activeActivity.addFragment(containerId, fragment);
     }
 
-    protected void replaceFragment(@IdRes int containerId,
-                                   BaseMultipleFragment fragment, boolean clearStack) {
+    protected final void replaceFragment(@IdRes int containerId,
+                                         BaseMultipleFragment fragment, boolean clearStack) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)
             ((BaseMultipleFragmentActivity) getActivity()).replaceFragment(

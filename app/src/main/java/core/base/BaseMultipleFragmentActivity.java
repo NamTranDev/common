@@ -337,19 +337,19 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
-    public Activity getActiveActivity() {
+    public final Activity getActiveActivity() {
         return BaseApplication.getActiveActivity();
     }
 
     @Override
-    public Context getBaseContext() {
+    public final Context getBaseContext() {
         return BaseApplication.getContext();
     }
 
     @Override
-    public void showDecisionDialog(Context context, int id, @LayoutRes int layout, @DrawableRes int icon,
-                                   String title, String message, String yes, String no, String cancel,
-                                   Object onWhat, DecisionListener listener) {
+    public final void showDecisionDialog(Context context, int id, @LayoutRes int layout, @DrawableRes int icon,
+                                         String title, String message, String yes, String no, String cancel,
+                                         Object onWhat, DecisionListener listener) {
         if (BaseProperties.decisionDialog != null)
             BaseProperties.decisionDialog.dismiss();
         BaseProperties.decisionDialog = null;
@@ -362,9 +362,9 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
-    public void showAlertDialog(Context context, int id, @LayoutRes int layout, @DrawableRes int icon,
-                                String title, String message, String confirm,
-                                Object onWhat, ConfirmListener listener) {
+    public final void showAlertDialog(Context context, int id, @LayoutRes int layout, @DrawableRes int icon,
+                                      String title, String message, String confirm,
+                                      Object onWhat, ConfirmListener listener) {
         if (BaseProperties.alertDialog != null)
             BaseProperties.alertDialog.dismiss();
         BaseProperties.alertDialog = null;
@@ -377,7 +377,7 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
-    public void showLoadingDialog(Context context, @LayoutRes int layout, String loading) {
+    public final void showLoadingDialog(Context context, @LayoutRes int layout, String loading) {
         if (BaseProperties.loadingDialog != null)
             BaseProperties.loadingDialog.dismiss();
         BaseProperties.loadingDialog = null;
@@ -389,7 +389,7 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
-    public void closeLoadingDialog() {
+    public final void closeLoadingDialog() {
         if (BaseProperties.loadingDialog != null)
             if (BaseProperties.loadingDialog.isShowing())
                 BaseProperties.loadingDialog.dismiss();

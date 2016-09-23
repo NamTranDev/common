@@ -151,7 +151,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
+    public final boolean dispatchTouchEvent(@NonNull MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
             Utils.closeSoftKeyboard(this, findViewById(android.R.id.content)
                     .getRootView());
@@ -160,7 +160,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public boolean onTouchEvent(@NonNull MotionEvent event) {
+    public final boolean onTouchEvent(@NonNull MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
             Utils.closeSoftKeyboard(this, findViewById(android.R.id.content)
                     .getRootView());
@@ -170,7 +170,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public void finish() {
+    public final void finish() {
         isFinished = true;
         super.finish();
         if (isTaskRoot())
@@ -229,7 +229,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public void registerSingleAction(View... views) {
+    public final void registerSingleAction(View... views) {
         for (View view : views)
             if (view != null && !isExceptionalView(view)) {
                 view.setOnClickListener(getSingleClick());
@@ -238,7 +238,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public void registerSingleAction(@IdRes int... ids) {
+    public final void registerSingleAction(@IdRes int... ids) {
         for (int id : ids) {
             View view = findViewById(id);
             if (view != null && !isExceptionalView(view)) {
@@ -249,19 +249,19 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public Activity getActiveActivity() {
+    public final Activity getActiveActivity() {
         return BaseApplication.getActiveActivity();
     }
 
     @Override
-    public Context getBaseContext() {
+    public final Context getBaseContext() {
         return BaseApplication.getContext();
     }
 
     @Override
-    public void showDecisionDialog(Context context, int id, @LayoutRes int layout, @DrawableRes int icon,
-                                   String title, String message, String yes, String no, String cancel,
-                                   Object onWhat, DecisionListener listener) {
+    public final void showDecisionDialog(Context context, int id, @LayoutRes int layout, @DrawableRes int icon,
+                                         String title, String message, String yes, String no, String cancel,
+                                         Object onWhat, DecisionListener listener) {
         if (BaseProperties.decisionDialog != null)
             BaseProperties.decisionDialog.dismiss();
         BaseProperties.decisionDialog = null;
@@ -274,9 +274,9 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public void showAlertDialog(Context context, int id, int layout, int icon,
-                                String title, String message, String confirm,
-                                Object onWhat, ConfirmListener listener) {
+    public final void showAlertDialog(Context context, int id, int layout, int icon,
+                                      String title, String message, String confirm,
+                                      Object onWhat, ConfirmListener listener) {
         if (BaseProperties.alertDialog != null)
             BaseProperties.alertDialog.dismiss();
         BaseProperties.alertDialog = null;
@@ -289,7 +289,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public void showLoadingDialog(Context context, int layout, String loading) {
+    public final void showLoadingDialog(Context context, int layout, String loading) {
         if (BaseProperties.loadingDialog != null)
             BaseProperties.loadingDialog.dismiss();
         BaseProperties.loadingDialog = null;
@@ -301,7 +301,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public void closeLoadingDialog() {
+    public final void closeLoadingDialog() {
         if (BaseProperties.loadingDialog != null)
             if (BaseProperties.loadingDialog.isShowing())
                 BaseProperties.loadingDialog.dismiss();
@@ -313,15 +313,15 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public void makeFileRequest(String tag, String path, String name, String extension,
-                                RequestTarget target, Param content, Pair<String, String>... extras) {
+    public final void makeFileRequest(String tag, String path, String name, String extension,
+                                      RequestTarget target, Param content, Pair<String, String>... extras) {
         if (!Requester.startFileRequest(tag, target, content, path, name, extension, extras))
             DLog.d(TAG, "makeFileRequest failed with " + tag);
     }
 
     @Override
-    public void makeBackgroundRequest(String tag, RequestTarget target,
-                                      Param content, Pair<String, String>... extras) {
+    public final void makeBackgroundRequest(String tag, RequestTarget target,
+                                            Param content, Pair<String, String>... extras) {
         if (!Utils.isNetworkConnectionAvailable()) {
             return;
         }
@@ -330,15 +330,15 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public void makeParallelRequest(String tag, Param content, RequestTarget target, Pair<String, String>... extras) {
+    public final void makeParallelRequest(String tag, Param content, RequestTarget target, Pair<String, String>... extras) {
         if (!Requester.startParallelRequest(tag, target, content, extras))
             DLog.d(TAG, "makeParallelRequest failed with " + tag);
     }
 
     @Override
-    public void makeRequest(String tag, boolean loading, Param content,
-                            WebServiceResultHandler handler, RequestTarget target,
-                            Pair<String, String>... extras) {
+    public final void makeRequest(String tag, boolean loading, Param content,
+                                  WebServiceResultHandler handler, RequestTarget target,
+                                  Pair<String, String>... extras) {
         if (!Utils.isNetworkConnectionAvailable()) {
             closeLoadingDialog();
             showAlertDialog(
@@ -358,14 +358,14 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public void makeQueueRequest(String tag, Type type, Param content,
-                                 RequestTarget target, Pair<String, String>... extras) {
+    public final void makeQueueRequest(String tag, Type type, Param content,
+                                       RequestTarget target, Pair<String, String>... extras) {
         if (!Requester.startQueueRequest(tag, target, type, content, extras))
             DLog.d(TAG, "makeQueueRequest failed with " + tag);
     }
 
     @Override
-    public void cancelWebServiceRequest(String tag) {
+    public final void cancelWebServiceRequest(String tag) {
         if (BaseProperties.wsRequester != null) {
             BaseProperties.wsRequester.cancelAll(tag);
         } else {
@@ -374,18 +374,18 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseInte
     }
 
     @Override
-    public void cancelBackgroundRequest(String tag) {
+    public final void cancelBackgroundRequest(String tag) {
         if (BaseProperties.bgRequester != null)
             BaseProperties.bgRequester.cancelAll(tag);
     }
 
     @Override
-    public SingleTouch getSingleTouch() {
+    public final SingleTouch getSingleTouch() {
         return BaseProperties.getSingleTouch();
     }
 
     @Override
-    public SingleClick getSingleClick() {
+    public final SingleClick getSingleClick() {
         if (singleClick == null) {
             singleClick = new SingleClick();
             singleClick.setListener(this);
