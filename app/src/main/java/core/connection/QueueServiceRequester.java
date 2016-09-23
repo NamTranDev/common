@@ -99,7 +99,7 @@ public final class QueueServiceRequester implements Listener<QueueResponse>,
                         StatusCode.ERR_QUEUE_IN_REQUEST);
             }
         } else {
-            notifyListeners(Notify.FINISH, null, null, null, null, null);
+            notifyListeners(Notify.END, null, null, null, null, null);
         }
     }
 
@@ -191,8 +191,8 @@ public final class QueueServiceRequester implements Listener<QueueResponse>,
                     case START:
                         listener.onStartQueue(element);
                         break;
-                    case FINISH:
-                        listener.onFinishQueue();
+                    case END:
+                        listener.onEndQueue();
                         break;
                     case BLOCK:
                         listener.onBlockQueue(element);
@@ -313,6 +313,9 @@ public final class QueueServiceRequester implements Listener<QueueResponse>,
     private void handleQueueSuccess() {
         queue.remove(0);
         startQueueRequest();
+        if (queue.size() <= 0) {
+            notifyListeners(Notify.FINISH, null, null, null, null, null);
+        }
     }
 
     private void handleQueueFail() {
@@ -325,6 +328,9 @@ public final class QueueServiceRequester implements Listener<QueueResponse>,
                 case PASS:
                     queue.remove(element);
                     startQueueRequest();
+                    if (queue.size() <= 0) {
+                        notifyListeners(Notify.FINISH, null, null, null, null, null);
+                    }
                     return;
                 case BLOCK:
                     notifyListeners(Notify.BLOCK, element, null, null, null, null);
@@ -343,7 +349,8 @@ public final class QueueServiceRequester implements Listener<QueueResponse>,
 
     private enum Notify {
         START, // notify when an element in queue is requested
-        FINISH, // notify when all elements have been sent
+        END, // notify when all elements have been sent
+        FINISH, // notify when all elements have been sent and responses have been received
         BLOCK, // notify when a block-type element is failed to request, all remaining requests are kept and wait for user actions
         STOP, // notify when a stop-type element is failed to request, all remaining requests are removed and returned to handle
         RESULT_SUCCESS, // notify when a request is returned successfully with status success
@@ -364,10 +371,18 @@ public final class QueueServiceRequester implements Listener<QueueResponse>,
         void onStartQueue(QueueElement element);
 
         /**
+         * <b>Specified by:</b> onEndQueue(...) in QueueServiceListener <br>
+         * <br>
+         * This is called immediately all the elements in the queue have
+         * requested.
+         */
+        void onEndQueue();
+
+        /**
          * <b>Specified by:</b> onFinishQueue(...) in QueueServiceListener <br>
          * <br>
          * This is called immediately all the elements in the queue have
-         * finished.
+         * requested and responses have been received.
          */
         void onFinishQueue();
 
