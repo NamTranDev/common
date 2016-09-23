@@ -267,19 +267,10 @@ public final class QueueServiceRequester implements Listener<QueueResponse>,
                     onResponse(new QueueResponse(response.data, queue_error.getParser(),
                             response.headers, response.rawHeaders, queue_error.getRequestTarget()));
                     return;
-                } else {
-                    notifyListeners(Notify.FAIL, queue.get(0), null,
-                            queue_error.getRequestTarget(), error_message,
-                            error_code);
                 }
-            } else
-                notifyListeners(Notify.FAIL, queue.get(0), null,
-                        queue_error.getRequestTarget(), error_message,
-                        error_code);
-
-            handleQueueFail();
+            }
+            handleQueueFail(queue_error.getRequestTarget(), error_code, error_message);
         }
-
     }
 
     @Override
@@ -291,34 +282,31 @@ public final class QueueServiceRequester implements Listener<QueueResponse>,
         if (result != null) {
             result.setHeaders(response.getHeaders());
             result.setRawHeaders(response.getRawHeaders());
-            if (result.getStatus() == StatusCode.OK) {
-                notifyListeners(Notify.RESULT_SUCCESS, queue.get(0), result, null,
-                        null, null);
-                handleQueueSuccess();
-            } else {
-                notifyListeners(Notify.RESULT_FAIL, queue.get(0), result, null, null,
-                        null);
-                handleQueueSuccess();
-            }
+            handleQueueSuccess(result);
         } else {
-            notifyListeners(Notify.FAIL, queue.get(0), null,
-                    response.getRequestTarget(), BaseApplication
-                            .getContext()
-                            .getString(R.string.error_parsing_fail),
-                    StatusCode.ERR_PARSING);
-            handleQueueFail();
+            handleQueueFail(response.getRequestTarget(), StatusCode.ERR_PARSING, BaseApplication
+                    .getContext()
+                    .getString(R.string.error_parsing_fail));
         }
     }
 
-    private void handleQueueSuccess() {
-        queue.remove(0);
+    private void handleQueueSuccess(BaseResult result) {
+        QueueElement element = queue.get(0);
+        queue.remove(element);
+        if (result.getStatus() == StatusCode.OK) {
+            notifyListeners(Notify.RESULT_SUCCESS, element, result, null,
+                    null, null);
+        } else {
+            notifyListeners(Notify.RESULT_FAIL, element, result, null, null,
+                    null);
+        }
         startQueueRequest();
         if (queue.size() <= 0) {
             notifyListeners(Notify.FINISH, null, null, null, null, null);
         }
     }
 
-    private void handleQueueFail() {
+    private void handleQueueFail(RequestTarget target, StatusCode code, String message) {
         if (queue.size() > 0) {
             QueueElement element = queue.get(0);
             switch (element.getType()) {
@@ -327,6 +315,8 @@ public final class QueueServiceRequester implements Listener<QueueResponse>,
                     return;
                 case PASS:
                     queue.remove(element);
+                    notifyListeners(Notify.FAIL, element, null,
+                            target, message, code);
                     startQueueRequest();
                     if (queue.size() <= 0) {
                         notifyListeners(Notify.FINISH, null, null, null, null, null);
