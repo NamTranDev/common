@@ -15,8 +15,6 @@ import core.data.DataSaver.Key;
 @SuppressWarnings("unused")
 public class QueueElement {
 
-    private static final long CREATION_INTERVAL = 500; // 500ms
-    private final long create;
     private final QueueServiceRequest request;
     private String id;
     private Type type = Type.PASS;
@@ -25,13 +23,12 @@ public class QueueElement {
         try {
             int queue = DataSaver.getInstance().getInt(Key.QUEUE) + 1;
             this.id = UUID.randomUUID().toString() + queue;
-            if (queue > 1000000)
+            if (queue > 1000000000)
                 queue = 0;
             DataSaver.getInstance().setInt(Key.QUEUE, queue);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.create = System.currentTimeMillis();
         this.type = type;
         this.request = request;
     }
@@ -61,8 +58,7 @@ public class QueueElement {
     public boolean equals(Object object) {
         if (object != null && object instanceof QueueElement) {
             QueueElement element = (QueueElement) object;
-            return Math.abs(element.create - create) <= CREATION_INTERVAL
-                    && element.type == type && element.request.equals(request);
+            return id.equals(element.id) && element.type == type && element.request.equals(request);
         }
         return false;
     }
