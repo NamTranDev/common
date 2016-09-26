@@ -92,6 +92,10 @@ public final class ParallelServiceRequester implements Response.Listener<Paralle
                     sslQueue.add(request);
                     queue.remove(request);
                 }
+            } else {
+                notifyListeners(Notify.WAIT, null, null, (String) request.getTag(), BaseApplication
+                        .getContext()
+                        .getString(R.string.error_full_request_pool, CONNECTIONS_LIMIT), StatusCode.ERR_REQUEST_POOL_FULL);
             }
         }
     }
@@ -122,6 +126,28 @@ public final class ParallelServiceRequester implements Response.Listener<Paralle
             sslQueue.cancelAll(filter);
         queue.clear();
         currentRequestingConnection = 0;
+    }
+
+    private static void notifyListeners(Notify status, BaseResult result, RequestTarget target, String tag, String error, StatusCode code) {
+        for (ParallelServiceListener listener : listeners.values()) {
+            switch (status) {
+                case RESULT_SUCCESS:
+                    listener.onResultSuccess(result);
+                    break;
+                case RESULT_FAIL:
+                    listener.onResultFail(result);
+                    break;
+                case FAIL:
+                    listener.onFail(target, tag, error, code);
+                    break;
+                case FINISH:
+                    listener.onFinish();
+                    break;
+                case WAIT:
+                    listener.onWait(tag, error, code);
+                    break;
+            }
+        }
     }
 
     @Override
@@ -205,30 +231,12 @@ public final class ParallelServiceRequester implements Response.Listener<Paralle
         }
     }
 
-    private void notifyListeners(Notify status, BaseResult result, RequestTarget target, String tag, String error, StatusCode code) {
-        for (ParallelServiceListener listener : listeners.values()) {
-            switch (status) {
-                case RESULT_SUCCESS:
-                    listener.onResultSuccess(result);
-                    break;
-                case RESULT_FAIL:
-                    listener.onResultFail(result);
-                    break;
-                case FAIL:
-                    listener.onFail(target, tag, error, code);
-                    break;
-                case FINISH:
-                    listener.onFinish();
-                    break;
-            }
-        }
-    }
-
     private enum Notify {
         RESULT_SUCCESS, // notify when a request is returned successfully with status success
         RESULT_FAIL, // notify when a request is returned successfully with status failed
         FAIL, // notify when a request is failed to request
-        FINISH // notify when all requestes are finished (both failed and successful)
+        WAIT, // notify when request pool is full, the incoming requests are blocked
+        FINISH // notify when all requests are finished (both failed and successful)
     }
 
     public interface ParallelServiceListener {
@@ -272,5 +280,16 @@ public final class ParallelServiceRequester implements Response.Listener<Paralle
          * This is called immediately after all requests are finished (both failed and successful)
          */
         void onFinish();
+
+        /**
+         * <b>Specified by:</b> onWait(...) in ParallelServiceListener <br>
+         * <br>
+         * This is called when new request added and connection limit reached
+         *
+         * @param tag     The tag of request has been call from
+         * @param message The string explaining the failure of the request
+         * @param code    The code indicating the type of failure
+         */
+        void onWait(String tag, String message, Constant.StatusCode code);
     }
 }
