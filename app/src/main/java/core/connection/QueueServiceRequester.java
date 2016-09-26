@@ -80,9 +80,9 @@ public final class QueueServiceRequester implements Listener<QueueResponse>,
                     startRequest(queue.get(0).getRequest());
                 } else {
                     notifyListeners(Notify.FAIL,
-                            queue.get(0),
+                            queue.get(queue.size() - 1),
                             null,
-                            queue.get(0).getRequest().getRequestTarget(),
+                            queue.get(queue.size() - 1).getRequest().getRequestTarget(),
                             BaseApplication
                                     .getContext()
                                     .getString(R.string.error_connection_fail),
@@ -90,9 +90,9 @@ public final class QueueServiceRequester implements Listener<QueueResponse>,
                 }
             } else {
                 notifyListeners(Notify.FAIL,
-                        queue.get(0),
+                        queue.get(queue.size() - 1),
                         null,
-                        queue.get(0).getRequest().getRequestTarget(),
+                        queue.get(queue.size() - 1).getRequest().getRequestTarget(),
                         BaseApplication
                                 .getContext()
                                 .getString(R.string.error_queue_in_request),
