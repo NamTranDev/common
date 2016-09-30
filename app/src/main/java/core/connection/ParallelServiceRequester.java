@@ -74,7 +74,9 @@ public final class ParallelServiceRequester implements Response.Listener<Paralle
     }
 
     public static void removeListener(ParallelServiceListener listener) {
-        listeners.remove(listener);
+        if (listener != null) {
+            listeners.remove(listener);
+        }
     }
 
     private static void startRequest(ParallelServiceRequest request) {

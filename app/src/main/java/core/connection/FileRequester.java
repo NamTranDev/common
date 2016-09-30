@@ -92,7 +92,9 @@ public class FileRequester implements Response.Listener<FileResponse>, Response.
     }
 
     public static void removeListener(FileResultHandler listener) {
-        listeners.remove(listener);
+        if (listener != null) {
+            listeners.remove(listener);
+        }
     }
 
     public void stopRequest() {

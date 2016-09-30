@@ -325,29 +325,6 @@ public interface BaseInterface {
                              RequestTarget target, Pair<String, String>... extras);
 
     /**
-     * This method is for making a background connection to server base on the
-     * target and parameters defined in request. <br>
-     * Every target must be defined in enum RequestTarget in Constant and
-     * implement functions for returning type, method, host, parser and build. <br>
-     * Every request content must be derived from Param and implements
-     * <code>makeRequestParams()</code> for the parameters and
-     * <code>makeRequestHeaders()</code> for the headers of the web-service.
-     * This method can be used at any class implements BaseInterface. <br>
-     * This method will return the result in background and it has the lowest
-     * priority <br>
-     * To handle the result of these request, implement the
-     * <code>onResponse</code> and <code>onErrorResponse</code> in
-     * <code>BackgroundServiceRequester</code>.
-     *
-     * @param tag     The string indicate the id of this request
-     * @param target  The function requested to the server
-     * @param content The content of the request including parameters and headers
-     * @param extras  The extra parameters to build api
-     */
-    void makeBackgroundRequest(String tag, RequestTarget target,
-                               Param content, Pair<String, String>... extras);
-
-    /**
      * This method is for downloading a file from server base on the
      * target and parameters defined in request. <br>
      * Every target must be defined in enum RequestTarget in Constant and

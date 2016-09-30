@@ -291,21 +291,6 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
-    public final void makeBackgroundRequest(String tag, RequestTarget target,
-                                            Param content, Pair<String, String>... extras) {
-        if (getActivity() != null
-                && getActivity() instanceof BaseMultipleFragmentActivity)
-            ((BaseMultipleFragmentActivity) getActivity())
-                    .makeBackgroundRequest(tag, target, content, extras);
-        else if (getActiveActivity() != null
-                && getActiveActivity() instanceof BaseMultipleFragmentActivity)
-            ((BaseMultipleFragmentActivity) getActiveActivity())
-                    .makeBackgroundRequest(tag, target, content, extras);
-        else
-            activeActivity.makeBackgroundRequest(tag, target, content, extras);
-    }
-
-    @Override
     public final void makeRequest(String tag, boolean loading, Param content,
                                   WebServiceResultHandler handler, RequestTarget target,
                                   Pair<String, String>... extras) {

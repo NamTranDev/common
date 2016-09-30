@@ -27,7 +27,6 @@ import java.util.LinkedHashSet;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import core.connection.BackgroundServiceRequester;
 import core.connection.Requester;
 import core.connection.WebServiceRequester;
 import core.connection.WebServiceRequester.WebServiceResultHandler;
@@ -197,8 +196,6 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     protected void onResume() {
         TAG = getClass().getName();
         BaseProperties.wsRequester = WebServiceRequester
-                .getInstance(BaseApplication.getContext());
-        BaseProperties.bgRequester = BackgroundServiceRequester
                 .getInstance(BaseApplication.getContext());
         BaseApplication.setActiveActivity(this);
         // EventBus.getDefault().register(this);
@@ -408,16 +405,6 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
-    public final void makeBackgroundRequest(String tag, RequestTarget target,
-                                            Param content, Pair<String, String>... extras) {
-        if (!Utils.isNetworkConnectionAvailable()) {
-            return;
-        }
-        if (!Requester.startBackgroundRequest(tag, target, content, extras))
-            DLog.d(TAG, "makeBackgroundRequest failed with " + tag);
-    }
-
-    @Override
     public final void makeRequest(String tag, boolean loading, Param content,
                                   WebServiceResultHandler handler, RequestTarget target,
                                   Pair<String, String>... extras) {
@@ -459,12 +446,6 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
         } else {
             BaseProperties.wsRequester.cancelAll(null);
         }
-    }
-
-    @Override
-    public final void cancelBackgroundRequest(String tag) {
-        if (BaseProperties.bgRequester != null)
-            BaseProperties.bgRequester.cancelAll(tag);
     }
 
     @Override

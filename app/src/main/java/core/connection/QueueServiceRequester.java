@@ -129,7 +129,9 @@ public final class QueueServiceRequester implements Listener<QueueResponse>,
     }
 
     public static void removeListener(QueueServiceListener listener) {
-        listeners.remove(listener);
+        if (listener != null) {
+            listeners.remove(listener);
+        }
     }
 
     private static void startRequest(QueueServiceRequest request) {

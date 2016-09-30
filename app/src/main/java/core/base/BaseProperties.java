@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 
-import core.connection.BackgroundServiceRequester;
 import core.connection.FileRequester;
 import core.connection.ParallelServiceRequester;
 import core.connection.QueueServiceRequester;
@@ -60,12 +59,6 @@ public abstract class BaseProperties {
      * result to the listeners
      */
     public static ParallelServiceRequester parallelRequester = null;
-
-    /**
-     * The background service requester to make the background request with the
-     * low priority and handle the result in the background thread
-     */
-    public static BackgroundServiceRequester bgRequester = null;
 
     /**
      * Single touch reference, this single touch will be applied for components

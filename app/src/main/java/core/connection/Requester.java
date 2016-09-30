@@ -7,7 +7,6 @@ import core.base.BaseProperties;
 import core.base.Param;
 import core.connection.WebServiceRequester.WebServiceResultHandler;
 import core.connection.queue.QueueElement;
-import core.connection.request.BackgroundServiceRequest;
 import core.connection.request.FileRequest;
 import core.connection.request.ParallelServiceRequest;
 import core.connection.request.QueueServiceRequest;
@@ -38,27 +37,6 @@ public class Requester {
         } catch (Exception ex) {
             ex.printStackTrace();
             DLog.d(TAG, "Request canceled!");
-            return false;
-        }
-    }
-
-    public static boolean startBackgroundRequest(String tag, RequestTarget target, Param content, Pair<String, String>... extras) {
-        try {
-            BackgroundServiceRequest request;
-            if (BaseProperties.bgRequester == null)
-                BaseProperties.bgRequester = BackgroundServiceRequester
-                        .getInstance(BaseApplication.getContext());
-            request = new BackgroundServiceRequest(tag, RequestTarget.type(target),
-                    RequestTarget.method(target), RequestTarget.host(target), target,
-                    RequestTarget.build(target, extras), content,
-                    BaseProperties.bgRequester);
-            BaseProperties.bgRequester.startRequest(request);
-            DLog.d(TAG, request.getRequestMethod().name().toUpperCase()
-                    + " >> " + request.getUrl());
-            return true;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            DLog.d(TAG, "Background request canceled!");
             return false;
         }
     }
