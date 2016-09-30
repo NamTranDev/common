@@ -39,7 +39,7 @@
             android:value="1" />
         <meta-data
             android:name="AA_SERIALIZERS"
-            android:value="core.data.serializer.StringPairSerializer,core.data.serializer.ByteArraySerializer,core.data.serializer.HashMapSerializer,core.data.serializer.MapSerializer,core.data.serializer.BooleanArraySerializer,core.data.serializer.IntegerArraySerializer,core.data.serializer.DoubleArraySerializer,core.serializer.StringArraySerializer" />
+            android:value="core.data.serializer.StringPairSerializer,core.data.serializer.HashMapSerializer,core.data.serializer.MapSerializer,core.data.serializer.BooleanArraySerializer,core.data.serializer.IntegerArraySerializer,core.data.serializer.DoubleArraySerializer,core.serializer.StringArraySerializer" />
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
