@@ -21,7 +21,7 @@ public class RequestQueueDAO extends Model {
     private HashMap<String, String> headers;
 
     @Column(name = "body")
-    private String body;
+    private byte[] body;
 
     @Column(name = "tag")
     private String tag;
@@ -62,7 +62,7 @@ public class RequestQueueDAO extends Model {
         this.target = target;
         this.extra = extra;
         this.headers = headers;
-        this.body = new String(body);
+        this.body = body;
         this.type = type;
         this.sent = sent;
     }
@@ -78,7 +78,7 @@ public class RequestQueueDAO extends Model {
      * @return the body
      */
     public byte[] getBody() {
-        return body.getBytes();
+        return body;
     }
 
     /**
