@@ -704,8 +704,10 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
                 for (int i = 0; i < tags.size(); ++i) {
                     removed = (BaseMultipleFragment) getSupportFragmentManager().findFragmentByTag(tags.get(i));
                     if (removed.getTag().equals(tag)) {
-                        getSupportFragmentManager().beginTransaction()
-                                .remove(removed).commitNow();
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction()
+                                .remove(removed);
+                        removeAllChildFragments(removed.getView(), transaction);
+                        transaction.commitNow();
                         tags.remove(i);
                         onFragmentRemoved(containerId, tag);
                         break;
