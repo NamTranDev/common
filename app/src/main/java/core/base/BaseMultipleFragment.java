@@ -276,6 +276,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
+    @SafeVarargs
     public final void makeFileRequest(String tag, String path, String name, String extension,
                                       RequestTarget target, Param content, Pair<String, String>... extras) {
         if (getActivity() != null
@@ -291,6 +292,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
+    @SafeVarargs
     public final void makeRequest(String tag, boolean loading, Param content,
                                   WebServiceResultHandler handler, RequestTarget target,
                                   Pair<String, String>... extras) {
@@ -308,6 +310,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
+    @SafeVarargs
     public final void makeQueueRequest(String tag, QueueElement.Type type, Param content,
                                        RequestTarget target, Pair<String, String>... extras) {
         if (getActivity() != null
@@ -321,6 +324,7 @@ public abstract class BaseMultipleFragment extends Fragment implements
     }
 
     @Override
+    @SafeVarargs
     public final void makeParallelRequest(String tag, Param content, RequestTarget target, Pair<String, String>... extras) {
         if (getActivity() != null
                 && getActivity() instanceof BaseMultipleFragmentActivity)

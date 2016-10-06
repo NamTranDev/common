@@ -398,6 +398,7 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
+    @SafeVarargs
     public final void makeFileRequest(String tag, String path, String name, String extension,
                                       RequestTarget target, Param content, Pair<String, String>... extras) {
         if (!Requester.startFileRequest(tag, target, content, path, name, extension, extras))
@@ -405,6 +406,7 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
+    @SafeVarargs
     public final void makeRequest(String tag, boolean loading, Param content,
                                   WebServiceResultHandler handler, RequestTarget target,
                                   Pair<String, String>... extras) {
@@ -427,6 +429,7 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
+    @SafeVarargs
     public final void makeQueueRequest(String tag, Type type, Param content,
                                        RequestTarget target, Pair<String, String>... extras) {
         if (!Requester.startQueueRequest(tag, target, type, content, extras))
@@ -434,6 +437,7 @@ public abstract class BaseMultipleFragmentActivity extends AppCompatActivity
     }
 
     @Override
+    @SafeVarargs
     public final void makeParallelRequest(String tag, Param content, RequestTarget target, Pair<String, String>... extras) {
         if (!Requester.startParallelRequest(tag, target, content, extras))
             DLog.d(TAG, "makeParallelRequest failed with " + tag);
